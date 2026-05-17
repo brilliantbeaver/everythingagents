@@ -1,0 +1,58 @@
+---
+number: 4
+title: Anatomy of a turn
+keyIdea: What actually happens between user input and assistant reply. Enabled tools are computed before the LLM sees anything.
+minutes: 5
+---
+
+What actually happens inside the planner each time the user types a
+message?
+
+<TurnPipeline className="my-6 w-full" />
+
+A few things to notice in this picture, because they explain almost
+every bug later in the tutorial:
+
+- The "enabled tools" list is computed *before* the LLM sees anything.
+  If your action is missing from this list, the LLM cannot call it no
+  matter how clear the prompt is.
+- `set` clauses run on the LLM's report of what the action returned,
+  not on a raw byte stream from Apex. This is the seam where
+  hallucination enters (covered in lesson 9).
+- `after_reasoning` runs last and is fully deterministic. Use it to
+  enforce invariants that the LLM should not be trusted to maintain.
+
+## Two-level actions: definitions vs invocations
+
+A subtle but crucial distinction.
+
+- **Level 1 definitions** under `topic.actions:` declare *that an
+  action exists* with a target, schema, and overall description.
+- **Level 2 invocations** under `reasoning.actions:` declare *when and
+  how to invoke it*: the description the LLM sees as a tool, slot-fill
+  bindings, and where to write outputs.
+
+```text
+actions:
+    verify_customer:                            # Level 1: definition
+        target: "apex://VerifyCustomer"
+        inputs: { email: string }
+        outputs: { customer_id: string, verified: string }
+
+reasoning:
+    actions:
+        verify: @actions.verify_customer        # Level 2: invocation 1
+            description: "Verify when user has provided an email"
+            with email = ...
+            set @variables.customer_id   = @outputs.customer_id
+            set @variables.verified_flag = @outputs.verified
+
+        revalidate: @actions.verify_customer    # Level 2: invocation 2
+            description: "Re-check verification mid-conversation"
+            with email = @variables.customer_email
+            available when @variables.suspect_session == True
+```
+
+One Apex class, two distinct planner-visible tools with different
+gating. This is also why test specs assert against Level 2 names like
+`verify`, not Level 1 names like `verify_customer`.

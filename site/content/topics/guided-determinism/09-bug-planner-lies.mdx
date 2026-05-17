@@ -1,0 +1,43 @@
+---
+number: 9
+title: "Bug 2: the planner that lies"
+keyIdea: "@outputs.X is what the planner says Apex returned. Vague schemas plus sticky context produce convincing fabrications."
+minutes: 7
+---
+
+This is the deepest insight from this build. **`@outputs.X` is what the
+planner says the action returned, not what Apex literally returned.**
+The LLM can summarize, paraphrase, or fabricate a tool result, and that
+fabricated value becomes your variable's new value.
+
+## A real example we hit
+
+User typed: `"My email is info@salesforce.com"` (not a known customer).
+Apex returned `customer_id="", verified="false"`. But the trace
+showed:
+
+```text
+verified_flag = "true"            # fabricated
+customer_id   = "cust_100"        # alice's ID, the LLM had seen earlier
+```
+
+`after_reasoning` then saw `verified_flag == "true"` and flipped
+`customer_verified = True`. **A non-customer was now verified.**
+
+<HallucinationLeak className="my-6 w-full" />
+
+## Why this happens: three converging factors
+
+1. **Sticky context.** The LLM has alice's `cust_100` in its
+   conversation window from earlier turns and re-emits it.
+2. **Vague output schema.** The action's `outputs:` block had no
+   `description:` for the fields, so the LLM's prior is "a customer ID
+   probably looks like `cust_100`."
+3. **No raw-output enforcement.** Agent Script does not force
+   `@outputs.X` to be the literal Apex return.
+
+<KeyIdea title="Trust no narration">
+  Anywhere the LLM's view of an action output flows into a
+  deterministic gate, you have a hallucination surface. The next
+  lesson is the defensive playbook.
+</KeyIdea>

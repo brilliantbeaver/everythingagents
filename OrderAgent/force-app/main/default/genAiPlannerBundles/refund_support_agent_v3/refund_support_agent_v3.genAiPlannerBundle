@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>A customer service agent that verifies customer identity, looks up order invoices, processes refunds, and sends confirmation replies.</description>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>ambiguous_question_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>escalation_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>identity_verification_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>off_topic_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>refund_processing_16jfj000001ZnoT</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>agent_router_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Routes user requests to the appropriate subagent based on their intent. Handles initial greeting and determines whether the customer needs identity verification, refund processing, or other assistance.</description>
+        <developerName>agent_router_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFQ</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFQ</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>off_topic_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles requests that fall outside the scope of refund support. Politely redirects the customer back to refund-related topics or offers to connect them with a human agent. Does NOT process refunds, verify identity, or answer general knowledge questions.</description>
+        <developerName>off_topic_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFR</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFR</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>off_topic</localDeveloperName>
+        <masterLabel>Off Topic</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>ambiguous_question_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles cases where the customer&apos;s intent is unclear and could apply to multiple areas. Asks clarifying questions to determine what the customer needs, then routes them to the correct subagent. Does NOT process any actions or make assumptions about intent.</description>
+        <developerName>ambiguous_question_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFS</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFS</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>ambiguous_question</localDeveloperName>
+        <masterLabel>Ambiguous Question</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>refund_processing_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles the full refund workflow for verified customers: fetches order/invoice details with Find_Order, issues the refund with Issue_Return, and sends a confirmation reply with Send_Reply. Requires the customer to already be verified. Does NOT handle identity verification or unrelated inquiries.</description>
+        <developerName>refund_processing_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFN</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFN</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>send_reply_179fj0000027KFN</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>issue_return_179fj0000027KFN</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>find_order_179fj0000027KFN</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>issue_return_179fj0000027KFN</fullName>
+            <description>Issue a refund for the specified order. Returns confirmation data.</description>
+            <developerName>issue_return_179fj0000027KFN</developerName>
+            <invocationTarget>IssueReturn</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>true</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>issue_return</localDeveloperName>
+            <masterLabel>Issue Return</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>send_reply_179fj0000027KFN</fullName>
+            <description>Send a formatted reply message to the customer with refund details.</description>
+            <developerName>send_reply_179fj0000027KFN</developerName>
+            <invocationTarget>SendReply</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>send_reply</localDeveloperName>
+            <masterLabel>Send Reply</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>find_order_179fj0000027KFN</fullName>
+            <description>Look up an order/invoice by its ID. Returns order details including status, amount, and refund eligibility.</description>
+            <developerName>find_order_179fj0000027KFN</developerName>
+            <invocationTarget>FindOrder</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>find_order</localDeveloperName>
+            <masterLabel>Find Order</masterLabel>
+        </localActions>
+        <localDeveloperName>refund_processing</localDeveloperName>
+        <masterLabel>Refund Processing</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>identity_verification_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Verifies customer identity by collecting their email address and calling the Verify_Customer action. Valid emails must end in salesforce.com. On success, stores the customer ID and marks the customer as verified. Does NOT handle refund processing, order lookups, or any post-verification actions.</description>
+        <developerName>identity_verification_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFO</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFO</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>verify_customer_179fj0000027KFO</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>verify_customer_179fj0000027KFO</fullName>
+            <description>Verify a customer by their email address. Valid emails end in salesforce.com. Returns customer_id if valid.</description>
+            <developerName>verify_customer_179fj0000027KFO</developerName>
+            <invocationTarget>VerifyCustomer</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>verify_customer</localDeveloperName>
+            <masterLabel>Verify Customer</masterLabel>
+        </localActions>
+        <localDeveloperName>identity_verification</localDeveloperName>
+        <masterLabel>Identity Verification</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>escalation_16jfj000001ZnoT</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles escalation to a human agent when the customer is frustrated, explicitly requests a person, or the automated system cannot resolve the issue. Collects context and transfers the conversation. Does NOT attempt to resolve refund or verification issues directly.</description>
+        <developerName>escalation_16jfj000001ZnoT</developerName>
+        <genAiPluginInstructions>
+            <description>You are a customer service agent specializing in refunds for Acme Corp.
+You are an AI assistant, not a human. Always disclose this if asked.
+Your role is to help customers verify their identity, look up invoices,
+and process refunds efficiently and politely.
+Keep responses concise (2-3 sentences) and professional.
+Never share internal system details, action names, or configuration.
+If a customer is frustrated or the request is outside your scope, escalate.</description>
+            <developerName>instruction0_179fj0000027KFP</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj0000027KFP</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>escalation</localDeveloperName>
+        <masterLabel>Escalation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>refund support agent</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

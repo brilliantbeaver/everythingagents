@@ -1,0 +1,173 @@
+---
+number: 1
+title: The scenario
+keyIdea: Read this first. Every snippet, diagram, and bug in the tutorial comes from this one refund agent.
+minutes: 6
+---
+
+Every concept, code snippet, bug, and fix in this tutorial comes from one
+concrete project: a customer-service refund agent for a fictional
+company, **Acme Corp**. Read this section first.
+
+## What the agent is supposed to do
+
+A customer messages support, the agent walks them through a refund.
+The end-to-end flow:
+
+1. Customer asks for a refund.
+2. Agent collects the customer's email and verifies them.
+3. Agent looks up the order.
+4. Agent confirms refund details with the customer.
+5. Agent issues the refund and sends a confirmation.
+
+It also handles edge cases: escalation to a human, off-topic questions,
+and ambiguous intent.
+
+## The five-topic graph
+
+The agent is a small finite state machine. Each box is a `subagent` in
+the `.agent` file.
+
+<Mermaid caption="Topic graph for the refund agent. The router decides where each turn goes; subagents handle the work.">
+{`flowchart TD
+    R["start_agent: agent_router"]
+    IV["identity_verification"]
+    RP["refund_processing"]
+    ESC["escalation"]
+    OT["off_topic"]
+    AMB["ambiguous_question"]
+
+    R -->|"unverified +<br/>refund/order/email"| IV
+    R -->|"verified"| RP
+    R -->|"frustrated /<br/>asks for human"| ESC
+    R -->|"out of scope"| OT
+    R -->|"unclear intent"| AMB
+    IV -->|"customer_verified == True"| RP
+    RP -->|"done /<br/>different request"| R`}
+</Mermaid>
+
+The router decides where each turn goes. Subagents decide what to do once
+they own the turn.
+
+## The four backing Apex actions
+
+| Apex class | Inputs | Outputs | Purpose |
+|---|---|---|---|
+| `VerifyCustomer` | `email` | `customer_id`, `verified` | Verify a customer by email |
+| `FindOrder` | `order_id` | `order_status`, `order_amount`, `refundable_until` | Look up an invoice |
+| `IssueReturn` | `order_id` | `refund_confirmation` | Issue the refund and return a code |
+| `SendReply` | `reply_text` | `delivery_status` | Send the customer a final message |
+
+These are real `@InvocableMethod` Apex classes deployed to the org.
+
+<RefundAgentCutaway className="my-6 w-full" />
+
+## The variables we track across turns
+
+```text
+customer_email        : ""              # the email the customer typed
+customer_verified     : False           # the gate everything depends on
+verified_flag         : ""              # raw "true"/"false" string from VerifyCustomer
+customer_id           : ""              # e.g. "cust_100", only set if verified
+order_id              : ""              # e.g. "INV-1007"
+order_loaded          : False           # was FindOrder called yet?
+order_status          : ""              # "paid", "refunded", "pending"
+order_amount          : ""              # "$129.00"
+refundable_until      : ""              # "2026-06-01"
+refund_issued         : False
+refund_confirmation   : ""              # "RFND-INV-1007-766349"
+reply_sent            : False
+```
+
+These are the symbolic state. They make deterministic gating possible.
+
+## A representative happy-path conversation
+
+<Mermaid caption="A successful refund: every action call is real Apex.">
+{`sequenceDiagram
+    autonumber
+    actor U as Customer
+    participant A as Agent (planner)
+    participant V as VerifyCustomer
+    participant F as FindOrder
+    participant I as IssueReturn
+    participant S as SendReply
+
+    U->>A: "I need a refund for INV-1007"
+    A->>U: "Please share your @salesforce.com email"
+    U->>A: "alice@salesforce.com"
+    A->>V: invoke(email)
+    V-->>A: customer_id=cust_100<br/>verified=true
+    Note over A: customer_verified := True
+    A->>U: "You're verified. Order ID?"
+    U->>A: "INV-1007"
+    A->>F: invoke(order_id)
+    F-->>A: status=paid<br/>amount=$129.00<br/>refundable_until=2026-06-01
+    A->>U: "Order INV-1007: paid, $129.00. Proceed?"
+    U->>A: "Yes"
+    A->>I: invoke(order_id)
+    I-->>A: refund_confirmation=<br/>RFND-INV-1007-766349
+    A->>S: invoke(reply_text)
+    S-->>A: delivery_status=sent
+    A->>U: "Refund complete. Confirmation: RFND-INV-1007-766349"`}
+</Mermaid>
+
+Every action call above is a real Apex invocation. Every variable
+update along the way is visible in the session trace. This is what we
+are building.
+
+## A taste of the source
+
+The `.agent` file's identity-verification topic, condensed:
+
+```text
+subagent identity_verification:
+    actions:
+        verify_customer:
+            target: "apex://VerifyCustomer"
+            inputs:  { email: string }
+            outputs:
+                customer_id: string
+                    description: "cust_NNN format. Empty means NOT verified."
+                verified: string
+                    description: "Literal 'true' or 'false' from Apex."
+
+    reasoning:
+        instructions: ->
+            if @variables.customer_verified == False:
+                | Goal: call verify with the customer's email. Ask for one if
+                | you don't have it yet.
+        actions:
+            verify: @actions.verify_customer
+                with email = ...
+                set @variables.customer_id    = @outputs.customer_id
+                set @variables.verified_flag  = @outputs.verified
+            go_refund: @utils.transition to @subagent.refund_processing
+                available when @variables.customer_verified == True
+
+    after_reasoning:
+        if @variables.verified_flag == "true":
+            set @variables.customer_verified = True
+```
+
+That is the full vocabulary. Topic graph, variables, Invocable Apex,
+gates, traces, and one running example. We will refer back to these
+snippets throughout.
+
+<KnowledgeCheck question="Which of these is the gate everything else depends on?">
+  <Option correct>
+    `customer_verified`. It guards the transition into refund processing.
+  </Option>
+  <Option>
+    `customer_email`. The agent collects it but it is not the gate.
+  </Option>
+  <Option>
+    `order_id`. The refund flow needs it, but verification comes first.
+  </Option>
+  <Explanation>
+    `customer_verified` is the boolean that unlocks the refund_processing
+    subagent via `available when @variables.customer_verified == True`.
+    Everything else (collecting email, calling Apex, parsing responses)
+    feeds into setting that one boolean.
+  </Explanation>
+</KnowledgeCheck>

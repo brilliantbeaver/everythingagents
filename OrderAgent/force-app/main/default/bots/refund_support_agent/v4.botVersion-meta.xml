@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v4</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Hello! I&apos;m your refund support assistant. How can I help you today?</message>
+                <messageIdentifier>32c4c212-c3b8-4a17-85d1-80aeb3f77791</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>2e1fadef-fbaf-4531-8647-4d58c385fab8</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>b2ea8b31-a8f4-4aec-a6d0-02a564c9bb49</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>I encountered an issue processing your request. Let me try again.</message>
+                <messageIdentifier>5ae33a09-b203-4961-9c96-d155e7748da9</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>f0e1b3b2-b515-4446-9e9a-85c6771ba0a9</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>614b9b03-a664-4be1-9b54-3059e5dd1ffb</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Rich_Content_Error_Handling</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>9848aa07-83db-4f19-b2d2-e2abb0d7819e</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Transfer_To_Agent</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Transfer To Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationDefinitionPlanners>
+        <genAiPlannerName>refund_support_agent_v4</genAiPlannerName>
+    </conversationDefinitionPlanners>
+    <conversationSystemDialogs>
+        <dialog>Rich_Content_Error_Handling</dialog>
+        <type>ErrorHandling</type>
+    </conversationSystemDialogs>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Refund confirmation details returned from Issue_Return</description>
+        <developerName>refund_confirmation</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Refund Confirmation</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Payment status of the order (e.g. paid)</description>
+        <developerName>order_status</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Order Status</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Whether the final reply has been sent to the customer</description>
+        <developerName>reply_sent</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Reply Sent</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Customer email address collected for verification</description>
+        <developerName>customer_email</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Customer Email</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Whether the customer has been verified via email</description>
+        <developerName>customer_verified</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Customer Verified</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The next topic to be visited</description>
+        <developerName>AgentScriptInternal_next_topic</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Next Topic</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Number</dataType>
+        <description>Count of turns without resolution, used for escalation logic</description>
+        <developerName>frustration_signals</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Frustration Signals</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Refund eligibility deadline (e.g. 2026-06-01)</description>
+        <developerName>refundable_until</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Refundable Until</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The agent instructions</description>
+        <developerName>AgentScriptInternal_agent_instructions</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Agent Instructions</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Runtime condition evaluation for if statements</description>
+        <developerName>AgentScriptInternal_condition</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Runtime Condition</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Whether the refund has been successfully issued</description>
+        <developerName>refund_issued</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Refund Issued</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Verified customer ID (e.g. cust_100)</description>
+        <developerName>customer_id</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Customer Id</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Order total amount as string (e.g. $129.00)</description>
+        <developerName>order_amount</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Order Amount</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Order/invoice ID provided by customer (e.g. INV-1007)</description>
+        <developerName>order_id</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Order Id</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Whether the order details have been fetched</description>
+        <developerName>order_loaded</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Order Loaded</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <defaultStdObjForContactIdFltrEnabled>false</defaultStdObjForContactIdFltrEnabled>
+    <entryDialog>Welcome</entryDialog>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <isScriptCompatibleAgent>true</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <stopRecPrompts>false</stopRecPrompts>
+    <stopWelcomePrompts>false</stopWelcomePrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
+</BotVersion>

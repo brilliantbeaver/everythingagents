@@ -1,0 +1,7 @@
+{
+  "slug": "autotuning-agents",
+  "title": "Autotuning and Optimizing Agents",
+  "shortTitle": "Autotuning agents",
+  "oneLine": "Closing the loop: using observations to autotune prompts, gates, and tool choice without sacrificing correctness.",
+  "status": "upcoming"
+}

@@ -1,0 +1,82 @@
+---
+number: 6
+title: The toolchain and the dev loop
+keyIdea: Edit, validate, deploy, preview, trace, ship. Don't ship during inner-loop iteration.
+minutes: 5
+---
+
+Before we start hunting bugs in lessons 8–10, you need to know the dev
+loop. Every iteration is small.
+
+<DevLoop className="my-6 w-full" />
+
+## Step 0: set the target org
+
+```bash
+sf config get target-org --json
+# if empty:
+sf config set target-org <alias>
+```
+
+## Step 1: edit the .agent file
+
+4-space indents, booleans capitalized (`True`/`False`), strings
+double-quoted. `with email = ...` means the LLM fills in.
+
+## Step 2: validate compilation
+
+```bash
+sf agent validate authoring-bundle --json --api-name <api_name>
+```
+
+## Step 3: deploy backing Apex
+
+```bash
+sf project deploy start --json \
+    --metadata ApexClass:VerifyCustomer
+```
+
+For each new class, also add it to the agent user's permission set
+(see lesson 8).
+
+## Step 4: live preview against the bundle
+
+```bash
+SID=$(sf agent preview start --json --use-live-actions \
+        --authoring-bundle <api_name> | jq -r .result.sessionId)
+
+sf agent preview send --json --authoring-bundle <api_name> \
+    --session-id $SID -u "<test utterance>"
+
+sf agent preview end --json --authoring-bundle <api_name> --session-id $SID
+```
+
+`--use-live-actions` is essential. Without it, Apex is not actually
+called, and you are testing the LLM rather than the system.
+
+## Step 5: read traces
+
+Covered in detail in the next lesson. Briefly: the trace is a JSON
+file under `.sfdx/agents/<api_name>/sessions/<sid>/traces/<plan_id>.json`.
+
+## Step 6: ship when green
+
+```bash
+sf agent publish authoring-bundle --json --api-name <api_name>
+sf agent activate --json --api-name <api_name>
+```
+
+Every publish creates a permanent version. Do not publish during inner-
+loop iteration. Only when you are happy with the build.
+
+## Step 7: verify the published agent
+
+Use `--api-name` (not `--authoring-bundle`) to test what end users
+will hit:
+
+```bash
+sf agent preview start --json --api-name <api_name>
+```
+
+If behavior differs from `--authoring-bundle`, your published version
+is older than your local edits.

@@ -1,0 +1,44 @@
+---
+number: 2
+title: Why this is hard
+keyIdea: Pure-prompt agents stall. Pure-deterministic agents are brittle. Guided determinism is the middle path.
+minutes: 4
+---
+
+A naive agent is one of two extremes. Both fail.
+
+<TwoFailureModes className="my-6 w-full" />
+
+## Failure mode A: pure prompt, no structure
+
+The model is told "verify the customer, then refund their order, then
+send a reply." No actions are gated, no variables are tracked. What
+happens:
+
+- The model **narrates** instead of acting ("I'm verifying you now"
+  but no Apex was called).
+- The model **forgets** what state it is in across turns.
+- The model **hallucinates** outputs ("Your customer ID is 12345" with
+  no source).
+- You cannot reliably enforce "must verify before refund."
+
+## Failure mode B: pure deterministic, every turn scripted
+
+Every transition is a hard `if`. What happens:
+
+- The agent feels robotic and brittle.
+- It cannot handle compound user input ("refund INV-1007, my email is
+  alice@salesforce.com" with both pieces in one message).
+- Adding a new edge case means adding another `if` branch.
+- It cannot recover gracefully from off-script user phrasing.
+
+<KeyIdea title="Guided determinism">
+  Use prompts where flexibility helps. Use deterministic gates where
+  correctness matters. Never let the LLM decide whether the user is
+  verified. Only Apex gets to make that call.
+</KeyIdea>
+
+The pattern: the LLM picks *what to do next*. Deterministic gates
+decide *what is allowed*. Backing actions decide *what is true*. Each
+of those three sentences corresponds to a different control surface,
+which the next lesson unpacks.

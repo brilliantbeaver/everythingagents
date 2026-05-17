@@ -1,0 +1,66 @@
+---
+number: 3
+title: "The mental model: four control surfaces"
+keyIdea: Topic boundaries, instructions, available-when gates, and after_reasoning. Knowing which to reach for first is the whole skill.
+minutes: 5
+---
+
+Agent Script gives you four orthogonal places to enforce behavior.
+Knowing which to reach for first is the whole skill.
+
+<ControlSurfaceStack className="my-6 w-full" />
+
+| Surface | What it controls | When to use |
+|---|---|---|
+| Topic / subagent boundaries | Which set of actions and instructions is "active" | Coarse phase changes (verification then refund) |
+| `reasoning.instructions:` | What the LLM is told to do this turn | Soft guidance, multi-step plans, polite phrasing |
+| `available when` gates | Which actions the LLM can even see | Hard constraints (no refund without verification) |
+| `after_reasoning` blocks | Variable updates after an action runs | Compute derived state from action outputs |
+
+## Worked example
+
+```text
+subagent identity_verification:
+    actions:
+        verify_customer:
+            target: "apex://VerifyCustomer"   # backing action (truth source)
+
+    reasoning:
+        instructions: ->                       # prompt (LLM-driven)
+            if @variables.customer_verified == False:
+                | Ask for an email if you don't have one. Otherwise call verify.
+        actions:
+            verify: @actions.verify_customer
+            go_refund: @utils.transition to @subagent.refund_processing
+                available when @variables.customer_verified == True   # gate
+
+    after_reasoning:                           # derived state
+        if @variables.verified_flag == "true":
+            set @variables.customer_verified = True
+```
+
+Each line uses a different surface. The LLM is in charge inside
+`instructions:` but cannot bypass `available when` or `after_reasoning`.
+
+<Callout type="pitfall" title="Common pitfall">
+  Trying to enforce a constraint in the prompt that should be a gate.
+  Saying "only call this action if X" in plain English is a hint, not
+  a guarantee. If correctness matters, add `available when @variables.X == True`.
+</Callout>
+
+<KnowledgeCheck question="The agent must never issue a refund without first verifying the customer. Where do you enforce this?">
+  <Option correct>
+    On the `go_refund` transition, with `available when @variables.customer_verified == True`.
+  </Option>
+  <Option>
+    In the `instructions:` prompt: "Do not call refund actions unless the customer is verified."
+  </Option>
+  <Option>
+    By placing the refund actions inside `after_reasoning`.
+  </Option>
+  <Explanation>
+    Prompts are guidance. Gates are guarantees. `available when` hides
+    the action from the LLM entirely until the precondition is true,
+    which is a structural enforcement the model cannot bypass.
+  </Explanation>
+</KnowledgeCheck>

@@ -1,0 +1,70 @@
+---
+number: 8
+title: "Bug 1: the silent permission filter"
+keyIdea: The agent runs as the Einstein Agent User, not you. Apex without permset access disappears from enabled_tools with no error.
+minutes: 6
+---
+
+The single most painful bug in our build.
+
+**Symptom:** the agent "thinks" but never invokes any action. Replies
+like *"I am verifying your identity now"* with no action call. The
+trace shows `enabled_tools: []` even though the action exists in
+`reasoning.actions:`.
+
+**Cause:** the agent runs as the **Einstein Agent User**, not as you
+the admin. That user needs Apex class access on every action class.
+Without it, the planner silently filters the action out of the LLM's
+tool list.
+
+<Mermaid caption="Without Apex access for the running user, the action vanishes from the LLM's tool list silently.">
+{`flowchart LR
+    A["Action exists in<br/>reasoning.actions:"] --> B{"Einstein Agent User<br/>has Apex access?"}
+    B -->|"No"| C["Silently dropped<br/>from enabled_tools"]
+    B -->|"Yes"| D["Visible to LLM"]`}
+</Mermaid>
+
+## Diagnosis query
+
+```bash
+sf data query --json -q "
+    SELECT Id, SetupEntityId
+    FROM SetupEntityAccess
+    WHERE ParentId IN (
+        SELECT PermissionSetId
+        FROM PermissionSetAssignment
+        WHERE Assignee.Username = 'coral_cloud_experience_agent...@example.com'
+    )
+    AND SetupEntityType = 'ApexClass'
+    AND SetupEntityId IN (SELECT Id FROM ApexClass WHERE Name = 'VerifyCustomer')
+"
+```
+
+If `totalSize: 0`, the agent user cannot see the class.
+
+## Fix
+
+```xml
+<!-- force-app/main/default/permissionsets/RefundAgentActions.permissionset-meta.xml -->
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Refund Agent Actions</label>
+    <classAccesses>
+        <apexClass>VerifyCustomer</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <!-- repeat for each backing class -->
+</PermissionSet>
+```
+
+```bash
+sf project deploy start --json --metadata "PermissionSet:RefundAgentActions"
+sf org assign permset --json --name RefundAgentActions \
+    --on-behalf-of <agent_user_username>
+```
+
+<KeyIdea title="Silent filtering">
+  The planner removes inaccessible actions from the tool list without
+  raising an error. Always check `EnabledToolsStep` in the trace before
+  assuming your code is wrong.
+</KeyIdea>

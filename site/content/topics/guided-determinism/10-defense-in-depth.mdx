@@ -1,0 +1,81 @@
+---
+number: 10
+title: Defense in depth
+keyIdea: Schema descriptions, flag-based gates, server nonces, re-fetch on next action. Layer 2-3 anywhere stakes are real.
+minutes: 5
+---
+
+There is no single setting that makes hallucination impossible. The
+playbook is layers. Use as many as the stakes warrant.
+
+<DefenseOnion className="my-6 w-full" />
+
+## Defense A: schema descriptions narrow the prior
+
+```text
+outputs:
+    customer_id: string
+        description: "Customer ID in the format cust_NNN (e.g. cust_100).
+            Empty string means NOT verified. Never invent a value, use
+            only what Apex returns."
+    verified: string
+        description: "The literal lowercase string 'true' or 'false'
+            returned by Apex. Only 'true' means verified."
+```
+
+## Defense B: gate on flags Apex controls, not on LLM-controlled values
+
+Bad:
+```text
+after_reasoning:
+    if @variables.customer_id != "":          # any non-empty string passes
+        set @variables.customer_verified = True
+```
+
+Better:
+```text
+after_reasoning:
+    if @variables.verified_flag == "true":
+        set @variables.customer_verified = True
+```
+
+Best, because correlated values raise the bar for hallucination:
+```text
+after_reasoning:
+    if @variables.verified_flag == "true" and @variables.customer_id != "":
+        set @variables.customer_verified = True
+```
+
+## Defense C: server-issued nonces
+
+Have Apex return a one-time token like `"VRF-" + UUID`. The LLM has no
+reason to invent a UUID-shaped string. Gate downstream actions on the
+token's presence.
+
+```apex
+public class ActionOutput {
+    @InvocableVariable public String customer_id;
+    @InvocableVariable public String verified;
+    @InvocableVariable public String verification_token;  // fresh per call
+}
+```
+
+## Defense D: re-fetch on the next action
+
+The next action down the pipeline (e.g. `FindOrder`) takes
+`customer_id` and re-validates it server-side. A hallucinated
+`cust_999` fails the lookup. This is the strongest defense because it
+is implemented in Apex, not in the bundle.
+
+## Cost vs benefit
+
+| Defense | Effort | Spoof difficulty for LLM |
+|---|---|---|
+| A. Output descriptions | Trivial | Slightly harder |
+| B. Apex-controlled flag gate | Small | Harder |
+| C. Server nonces | Medium | Very hard |
+| D. Server-side re-fetch | Medium-large | Effectively impossible |
+
+Apply A and B unconditionally. Apply C and D anywhere the action
+authorizes a downstream irreversible operation (refund, payment, data
+release).

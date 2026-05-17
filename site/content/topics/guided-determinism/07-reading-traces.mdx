@@ -1,0 +1,87 @@
+---
+number: 7
+title: Reading session traces
+keyIdea: Traces are the truth. EnabledToolsStep tells you what the LLM saw; VariableUpdateStep tells you why state changed.
+minutes: 6
+---
+
+Traces are the single most useful debugging artifact. Every preview
+session writes them to disk:
+
+```text
+.sfdx/agents/<bundle_name>/sessions/<session_id>/traces/<plan_id>.json
+```
+
+A trace is an ordered list of typed steps. The handful that matter:
+
+<TraceTimeline className="my-6 w-full max-w-2xl" />
+
+| Step type | What it answers |
+|---|---|
+| `UserInputStep` | What the user actually typed |
+| `NodeEntryStateStep` | Which subagent the planner picked |
+| `EnabledToolsStep` | Which actions the LLM could see this turn |
+| `LLMStep` | What the LLM chose to do |
+| `VariableUpdateStep` | How variables changed and why |
+| `PlannerResponseStep` | The final reply to the user |
+
+## Diagnostic recipes
+
+**"My action isn't being called."** Find `EnabledToolsStep` for the
+relevant topic. Is the action listed?
+- Not listed: `available when` is too restrictive, or perms missing,
+  or action not in `reasoning.actions:`.
+- Listed but not called: action description does not match user
+  intent enough. Tighten the description.
+
+**"My variables are getting wrong values."** Find every
+`VariableUpdateStep` for that variable. Note `directive_context`:
+- `after_action`: came from `set` clauses or `after_reasoning`.
+- `on_message`: came from `before_reasoning` or `start_agent`.
+
+**"The agent stalled, replied without acting."** Look for `LLMStep`
+that returned an `Inform` response with no preceding
+`ActionInvocationStep`. The LLM chose to talk instead of act. Usually
+the action description is unclear or `instructions:` does not tell
+the LLM *when* to invoke vs. when to ask.
+
+## Walking a trace in code
+
+```python
+import json
+d = json.load(open('traces/<plan_id>.json'))
+for s in d['plan']:
+    t = s.get('type')
+    if t == 'EnabledToolsStep':
+        print(s['data']['agent_name'], '->', s['data']['enabled_tools'])
+    elif t == 'VariableUpdateStep':
+        for u in s['data']['variable_updates']:
+            n = u['variable_name']
+            if not n.startswith('__') and not n.startswith('AgentScriptInternal'):
+                print(f"{n}: {u['variable_past_value']!r} -> "
+                      f"{u['variable_new_value']!r} ({u['directive_context']})")
+```
+
+This 8-line script answered every "why did it do that?" question we had.
+
+> If you take one habit away from this tutorial, it is this: never
+> debug an Agent Script bug from the assistant's reply alone. Always
+> look at the trace.
+
+<KnowledgeCheck question="Your agent replies 'I am verifying your identity now' but never actually calls your VerifyCustomer Apex. Which trace step do you check first?">
+  <Option correct>
+    `EnabledToolsStep`. If `verify` isn't in the enabled tool list, the LLM never had it as an option.
+  </Option>
+  <Option>
+    `PlannerResponseStep`. The reply text tells you everything you need.
+  </Option>
+  <Option>
+    `VariableUpdateStep`. Variable changes are always the root cause.
+  </Option>
+  <Explanation>
+    The LLM can only call tools that the planner has exposed. If
+    `EnabledToolsStep` shows `[]` or doesn't include `verify`, the
+    bug is upstream of the LLM (a permission filter or `available when`
+    gate), and no amount of prompt-tuning will fix it.
+  </Explanation>
+</KnowledgeCheck>

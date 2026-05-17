@@ -1,0 +1,77 @@
+---
+number: 5
+title: "Invocable Apex: writing actions worth trusting"
+keyIdea: Bulk shape, reserved names, truthful nulls, deterministic outputs. Stubs that lie poison the planner.
+minutes: 6
+---
+
+Backing actions are how the agent does anything real. The shape Agent
+Script expects is **Invocable Apex** in three pieces:
+
+```apex
+public with sharing class VerifyCustomer {
+
+    // 1. Input class. Every field is @InvocableVariable.
+    public class ActionInput {
+        @InvocableVariable(required=true)
+        public String email;
+    }
+
+    // 2. Output class. Same pattern.
+    public class ActionOutput {
+        @InvocableVariable public String customer_id;
+        @InvocableVariable public String verified;
+    }
+
+    // 3. The invoke method. Bulk shape: list-in, list-out.
+    @InvocableMethod(label='Verify Customer'
+        description='Verifies a customer by email...')
+    public static List<ActionOutput> invoke(List<ActionInput> inputs) {
+        List<ActionOutput> results = new List<ActionOutput>();
+        for (ActionInput inp : inputs) {        // not "in" (reserved!)
+            ActionOutput out = new ActionOutput();
+            // ... real logic ...
+            results.add(out);
+        }
+        return results;
+    }
+}
+```
+
+## The four rules
+
+1. **Always bulk.** `List<Input>` to `List<Output>`. The framework
+   passes one input at a time in practice, but the contract must be
+   lists.
+2. **Reserved names.** Loop variable cannot be `in` (Apex reserved
+   keyword). `@InvocableVariable` field names cannot be `model`,
+   `description`, or `label`.
+3. **Truthful nulls.** Return `''` for "not found" and `'false'` for
+   "no". Not `'stub_response'` or `'TODO'`. Placeholder strings cause
+   *SMALL_TALK grounding* because the LLM falls back to its training
+   prior when an output looks bogus.
+4. **Deterministic.** Given the same input, return the same output.
+   The planner caches and re-uses results in the same turn.
+
+<Callout type="pitfall" title="The auto-provision trap">
+We originally wrote:
+
+```apex
+} else if (KNOWN_CUSTOMERS.containsKey(email)) {
+    out.customer_id = KNOWN_CUSTOMERS.get(email);
+    out.verified = 'true';
+} else {
+    Integer hash = Math.abs(email.hashCode());
+    out.customer_id = 'cust_' + Math.mod(hash, 800);  // auto-provision!
+    out.verified = 'true';
+}
+```
+
+For `info@salesforce.com` (not in `KNOWN_CUSTOMERS`), this happily
+synthesized a fake customer ID and returned `verified=true`. **The
+action was the source of truth, and it lied.** Fix: unknown emails
+return `('', 'false')`. Always.
+</Callout>
+
+> Backing actions must be conservative. If they can lie even by
+> accident, every defensive layer above them is built on sand.

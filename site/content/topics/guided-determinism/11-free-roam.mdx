@@ -1,0 +1,60 @@
+---
+number: 11
+title: "The free-roam variant: when to relax"
+keyIdea: Same Apex and same gates, prompt-only orchestration. Safe because the deterministic surfaces stay intact.
+minutes: 4
+---
+
+Sometimes the deterministic `if` branches inside `instructions:` feel
+heavy. We built a second variant of the same agent,
+`refund_support_agent_free_roam`, where `identity_verification` has
+*no* `if` branches in its prompt. Just one paragraph of plain English.
+
+## Guided variant
+
+```text
+reasoning:
+    instructions: ->
+        if @variables.customer_verified == True:
+            | Customer {!@variables.customer_id} is verified.
+            | Call go_refund now to move to refund processing.
+        if @variables.customer_verified == False:
+            | Goal: verify the customer by calling the verify action with their email.
+            | If the user has provided an email, call verify with that email immediately.
+            | If no email yet, ask for one.
+```
+
+## Free-roam variant
+
+```text
+reasoning:
+    instructions: ->
+        | You are responsible for verifying the customer's identity before any
+        | refund work happens. Your goal: end this turn with the customer
+        | verified. To do that, you must call the verify action with the
+        | customer's email address. Valid emails end with @salesforce.com.
+        | When you do not yet have an email from the customer, ask them for one.
+        | When the customer has provided an email, call the verify action.
+        | After verification succeeds, hand control to refund processing
+        | using the go_refund transition.
+```
+
+## What we observed
+
+| Metric | Guided | Free-roam |
+|---|---|---|
+| Single-turn `"refund. alice@salesforce.com"` | verifies | verifies |
+| Two-turn (split utterances) | asks then verifies | asks then verifies |
+| Bad email like `bob@example.com` | declines | declines |
+| Cost per turn | lower (smaller prompt) | higher (longer instructions) |
+| Adversarial prompt-injection in this topic | predictable | varies more |
+| Adding a 4th branch later | code change | prompt change |
+
+<KeyIdea title="Same gates, different prompts">
+  The free-roam variant is safe **only because it inherits the same
+  `available when` gates and the same Apex backing action.** Free-roam
+  is a UX and cost trade-off. It does not relax correctness as long as
+  the deterministic surfaces stay intact.
+</KeyIdea>
+
+> Relax prompts. Never relax gates.

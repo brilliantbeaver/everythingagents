@@ -1,0 +1,114 @@
+---
+number: 12
+title: Where this fits in AI research
+keyIdea: Neuro-symbolic Type-2 hybrid. ReAct + constrained generation. Not model-based RL, not Soar.
+minutes: 9
+---
+
+Guided determinism is not a new idea. It is a productized point in a
+well-studied design space. Naming the lineage helps you reason about
+trade-offs others have already documented, reach for the right
+research when easy fixes stop working, and avoid claiming inheritance
+from research that does not actually apply.
+
+<KeyIdea title="The most accurate label is *neuro-symbolic*">
+  Agent Script combines a symbolic scaffold (FSM-like topic graph,
+  typed variables, `available when` predicates) with a neural decision-
+  maker (the LLM planner) and typed external functions (Invocable
+  Apex). That shape is the textbook definition of a neuro-symbolic
+  system in Henry Kautz's six-category taxonomy.
+</KeyIdea>
+
+<LineageConvergence className="my-6 w-full" />
+
+For an industry write-up of the same idea from the team building Agentforce,
+see [Agentforce's Agent Graph: toward guided determinism with hybrid
+reasoning](https://engineering.salesforce.com/agentforces-agent-graph-toward-guided-determinism-with-hybrid-reasoning/)
+on the Salesforce Engineering blog.
+
+## How it maps to the literature
+
+### Neuro-symbolic AI: the primary frame
+
+The defining manifesto is Garcez & Lamb, *Neurosymbolic AI: The 3rd
+Wave* ([arXiv:2012.05876](https://arxiv.org/abs/2012.05876), 2020). Their criterion for a neurosymbolic
+system is "sound reasoning under the constraint of the symbolic
+component while leveraging the learning capacity of the neural
+component." That is exactly what `available when` does to an
+otherwise unconstrained LLM.
+
+Marcus 2020 ([arXiv:2002.06177](https://arxiv.org/abs/2002.06177)) argues neural systems need "explicit
+symbolic machinery for manipulating variables, types, and structured
+representations." Agent Script's typed variables, typed Invocable I/O,
+and explicit FSM topic transitions are a direct embodiment.
+
+### Model-based agents: not the right label
+
+In the Russell & Norvig sense, a "model-based agent" maintains
+internal state. Agent Script's variables fit informally. But in the
+**model-based RL** sense (Ha & Schmidhuber, *World Models*,
+[arXiv:1803.10122](https://arxiv.org/abs/1803.10122); Hafner et al., *Dreamer*, [arXiv:1912.01603](https://arxiv.org/abs/1912.01603)) you
+need a *learned transition model*. Agent Script has none. "Stateful
+agent" is fine. "Model-based agent" overclaims.
+
+### LLM tool use and ReAct: the proximate engineering lineage
+
+- **Yao et al., *ReAct*** ([arXiv:2210.03629](https://arxiv.org/abs/2210.03629), ICLR 2023). The
+  Thought-Action-Observation loop is the direct ancestor of
+  planner-picks-action / receive-typed-return-value architectures.
+- **Schick et al., *Toolformer*** ([arXiv:2302.04761](https://arxiv.org/abs/2302.04761), NeurIPS 2023).
+  Established typed external function calls as a first-class LLM
+  primitive.
+- **Huang et al., *Inner Monologue*** ([arXiv:2207.05608](https://arxiv.org/abs/2207.05608), CoRL 2022).
+  Closed-loop feedback from environment state into the LLM planner.
+
+A defensible thesis: ReAct alone is not neurosymbolic. It is just LLM
+plus tools. Adding `available when` gates over the action space is
+what tips ReAct-style tool use into genuinely neurosymbolic territory.
+
+### Constrained generation: the closest formal analogue to `available when`
+
+- **Willard & Louf, *Efficient Guided Generation*** ([arXiv:2307.09702](https://arxiv.org/abs/2307.09702),
+  2023). The Outlines paper. Frames constrained generation as
+  finite-state-machine masking of the LLM's output distribution.
+- **Park et al., *Grammar-Aligned Decoding*** ([arXiv:2405.21047](https://arxiv.org/abs/2405.21047),
+  NeurIPS 2024). Formalizes the distribution-distortion problem when
+  you constrain an LLM to a grammar.
+- **Beurer-Kellner et al., *Prompting Is Programming (LMQL)***
+  ([arXiv:2212.06094](https://arxiv.org/abs/2212.06094), PLDI 2023). The closest DSL-shaped precedent.
+
+### Cognitive architectures: the synthesis frame
+
+**Sumers et al., *Cognitive Architectures for Language Agents (CoALA)***
+([arXiv:2309.02427](https://arxiv.org/abs/2309.02427), TMLR 2024). CoALA explicitly frames LLM agents as
+cognitive architectures with memory, action space, and decision
+procedure, drawing the line back to Soar (Laird, 2012) and ACT-R
+(Anderson, 2007). Agent Script maps cleanly:
+
+- Working memory ≈ Agent Script `variables`
+- External action space ≈ Invocable Apex actions
+- Decision procedure ≈ topic FSM + `available when` + LLM planner
+
+## References
+
+1. Kautz, H. "The Third AI Summer." *AI Magazine* 43(1), 2022. [doi.org/10.1609/aaai.12000](https://doi.org/10.1609/aaai.12000)
+2. Garcez, A. d'A. & Lamb, L. C. "Neurosymbolic AI: The 3rd Wave."
+   [arXiv:2012.05876](https://arxiv.org/abs/2012.05876), 2020.
+3. Sarker, M. K. et al. "Neuro-Symbolic AI: Current Trends."
+   [arXiv:2105.05330](https://arxiv.org/abs/2105.05330), 2021.
+4. Marcus, G. "The Next Decade in AI." [arXiv:2002.06177](https://arxiv.org/abs/2002.06177), 2020.
+5. Yao, S. et al. "ReAct." *ICLR 2023*. [arXiv:2210.03629](https://arxiv.org/abs/2210.03629).
+6. Schick, T. et al. "Toolformer." *NeurIPS 2023*. [arXiv:2302.04761](https://arxiv.org/abs/2302.04761).
+7. Huang, W. et al. "Inner Monologue." *CoRL 2022*.
+   [arXiv:2207.05608](https://arxiv.org/abs/2207.05608).
+8. Willard, B. T. & Louf, R. "Efficient Guided Generation."
+   [arXiv:2307.09702](https://arxiv.org/abs/2307.09702), 2023.
+9. Park, K. et al. "Grammar-Aligned Decoding." *NeurIPS 2024*.
+   [arXiv:2405.21047](https://arxiv.org/abs/2405.21047).
+10. Beurer-Kellner, L. et al. "LMQL." *PLDI 2023*. [arXiv:2212.06094](https://arxiv.org/abs/2212.06094).
+11. Sumers, T. R. et al. "CoALA." *TMLR 2024*. [arXiv:2309.02427](https://arxiv.org/abs/2309.02427).
+12. Russell, S. & Norvig, P. *Artificial Intelligence: A Modern
+    Approach*, 4th ed., Pearson, 2020. [aima.cs.berkeley.edu](https://aima.cs.berkeley.edu/)
+13. Salesforce Engineering. "Agentforce's Agent Graph: toward guided
+    determinism with hybrid reasoning."
+    [engineering.salesforce.com](https://engineering.salesforce.com/agentforces-agent-graph-toward-guided-determinism-with-hybrid-reasoning/)

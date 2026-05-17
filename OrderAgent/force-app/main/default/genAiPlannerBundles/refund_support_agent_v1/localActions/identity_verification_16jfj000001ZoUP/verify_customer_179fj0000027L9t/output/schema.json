@@ -1,0 +1,22 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "customer_id" : {
+      "title" : "Customer Id",
+      "description" : "Customer ID returned by Apex in the format cust_NNN (e.g. cust_100). Empty string means the customer was NOT verified. Never invent a value — use only what Apex returns.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "verified" : {
+      "title" : "Verified",
+      "description" : "The literal lowercase string 'true' or 'false' returned by Apex. Only the exact string 'true' indicates a successful verification.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

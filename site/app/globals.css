@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm paper light theme */
+    --background: 98.5% 0.005 80;
+    --foreground: 22% 0.01 60;
+    --muted: 96% 0.008 80;
+    --muted-foreground: 48% 0.01 60;
+    --border: 90% 0.008 80;
+    --accent: 58% 0.13 70;
+    --accent-foreground: 99% 0 0;
+    --code-bg: 96.5% 0.008 80;
+    --ring: 58% 0.13 70 / 0.4;
+  }
+
+  .dark {
+    /* Warm ink dark theme */
+    --background: 16% 0.005 60;
+    --foreground: 94% 0.005 80;
+    --muted: 21% 0.008 60;
+    --muted-foreground: 70% 0.008 80;
+    --border: 29% 0.008 60;
+    --accent: 75% 0.12 75;
+    --accent-foreground: 16% 0.005 60;
+    --code-bg: 19% 0.005 60;
+    --ring: 75% 0.12 75 / 0.5;
+  }
+
+  * {
+    border-color: oklch(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: oklch(var(--background));
+    color: oklch(var(--foreground));
+    font-family: var(--font-source-serif), Georgia, serif;
+    font-feature-settings: "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* UI chrome uses sans */
+  header, nav, button, [role="button"], .ui-sans {
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+
+  /* Code uses mono */
+  code, pre, kbd, samp {
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-feature-settings: normal;
+  }
+
+  ::selection {
+    background: oklch(var(--accent) / 0.25);
+  }
+
+  :focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Skip-to-content link */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: 1rem;
+  z-index: 100;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.375rem;
+  background: oklch(var(--accent));
+  color: oklch(var(--accent-foreground));
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.875rem;
+}
+.skip-to-content:focus {
+  left: 1rem;
+}
+
+/* Print: hide site chrome, expand content, soften colors. */
+@media print {
+  header,
+  footer,
+  aside,
+  nav[aria-label="Lesson navigation"],
+  .skip-to-content,
+  [aria-label="Search lessons"],
+  [aria-label="On this page"] {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  article {
+    max-width: 72ch !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #666;
+  }
+  pre,
+  code {
+    background: #f5f5f5 !important;
+    color: black !important;
+    border-color: #ccc !important;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    page-break-inside: avoid;
+  }
+  svg {
+    page-break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}

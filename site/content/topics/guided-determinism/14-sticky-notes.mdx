@@ -1,0 +1,26 @@
+---
+number: 14
+title: Sticky-note appendix
+keyIdea: The seven things we wish we had known on day one.
+minutes: 2
+---
+
+The seven things we wish we had known on day one:
+
+1. **The agent runs as a different user.** Permission-set every Apex
+   class.
+2. **Stubs that return `'stub_response'` poison the planner.** Return
+   real data or `''`/`'false'`.
+3. **`enabled_tools` in the trace is the truth** about what the LLM
+   sees.
+4. **`@outputs.X` is what the planner *says* Apex returned.** Defend
+   against it lying with descriptions, flag-based gates, and
+   correlated checks.
+5. **The reserved Apex word `in` will silently break your loop.**
+   Use `inp`.
+6. **`if @variables.customer_id != ""` is a dangerously loose gate.**
+   Any non-empty hallucination passes it. Gate on explicit flags from
+   Apex.
+7. **`--use-live-actions` is mandatory** when iterating against real
+   backing logic. Without it, you are testing the LLM, not the
+   system.

@@ -1,0 +1,40 @@
+---
+number: 13
+title: Glossary
+keyIdea: Every term-of-art used across the tutorial, with one-line definitions.
+minutes: 3
+---
+
+- **Agent Script**: the DSL inside `.agent` files. Indentation-
+  sensitive, not YAML.
+- **Bundle / AiAuthoringBundle**: the metadata wrapper holding a
+  `.agent` file plus a `bundle-meta.xml`.
+- **Topic / subagent**: a named scope holding instructions, actions,
+  and state. The planner is "in" exactly one at a time.
+- **Action target**: the URI string identifying the backing logic.
+  `apex://ClassName`, `flow://FlowApiName`, `prompt://TemplateName`.
+- **Invocable**: Apex annotated with `@InvocableMethod` and
+  `@InvocableVariable`. List-in / list-out shape required.
+- **Level 1 vs Level 2 actions**: definition (target + schema) vs.
+  invocation (when + bindings).
+- **`with X = ...`**: slot-fill. The LLM extracts X from
+  conversation.
+- **`with X = @variables.Y`**: direct binding. Deterministic.
+- **`available when <expr>`**: visibility gate. The action is hidden
+  from the LLM when the expression is false.
+- **`set @variables.X = @outputs.Y`**: capture an action output to a
+  variable. *Captures whatever the planner reports the output to be.*
+- **`after_reasoning:`**: post-action deterministic state update
+  block.
+- **`@system_variables.user_input`**: the raw current user message.
+- **Einstein Agent User**: the running user the planner executes as.
+  Needs permset access to every Apex class your actions target.
+- **Trace / `plan_id.json`**: the per-turn JSON record of every step
+  the planner took. The single most useful debugging artifact.
+- **Neuro-symbolic / Type-2 hybrid**: Kautz's category for systems
+  where a symbolic problem solver invokes a neural subroutine. Agent
+  Script's closest formal home in the literature.
+- **Constrained generation / guided generation**: research line on
+  restricting LLM output to a grammar or FSM. The closest formal
+  analogue to how `available when` shapes the LLM's tool-choice
+  distribution.
