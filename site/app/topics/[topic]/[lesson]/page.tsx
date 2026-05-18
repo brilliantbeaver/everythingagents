@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { evaluate } from "@mdx-js/mdx";
+import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,13 +10,6 @@ import { extractHeadings } from "@/lib/headings";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { mdxComponents } from "@/components/mdx/components";
 import { RightTOC } from "@/components/site/right-toc";
-
-const mdxOptions = {
-  mdxOptions: {
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeSlug],
-  },
-};
 
 type Params = Promise<{ topic: string; lesson: string }>;
 
@@ -76,12 +70,24 @@ function LessonNav({ topic }: { topic: Topic }) {
   );
 }
 
+async function compileMdx(source: string) {
+  const { default: MDXContent } = await evaluate(source, {
+    ...runtime,
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeSlug],
+    development: false,
+    baseUrl: import.meta.url,
+  });
+  return MDXContent;
+}
+
 export default async function LessonPage({ params }: { params: Params }) {
   const { topic: topicSlug, lesson: lessonSlug } = await params;
   const found = getLesson(topicSlug, lessonSlug);
   if (!found) notFound();
   const { topic, lesson, prev, next } = found;
   const headings = extractHeadings(lesson.source);
+  const MDXContent = await compileMdx(lesson.source);
   return (
     <div className="py-8 sm:py-10 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[240px_minmax(0,1fr)_220px]">
       <LessonNav topic={topic} />
@@ -102,7 +108,7 @@ export default async function LessonPage({ params }: { params: Params }) {
           <p className="mt-3 text-base text-foreground/85">{lesson.keyIdea}</p>
         </header>
         <div className="mt-8 max-w-prose">
-          <MDXRemote source={lesson.source} components={mdxComponents} options={mdxOptions} />
+          <MDXContent components={mdxComponents} />
         </div>
         <nav aria-label="Lesson navigation" className="ui-sans mt-16 flex flex-wrap items-stretch justify-between gap-4 border-t border-border pt-6 text-sm">
           {prev ? (

@@ -1,7 +1,7 @@
 ---
 number: 8
 title: "Bug 1: the silent permission filter"
-keyIdea: The agent runs as the Einstein Agent User, not you. Apex without permset access disappears from enabled_tools with no error.
+keyIdea: The agent runs as a separate agent user, not you. Apex without permset access disappears from enabled_tools with no error.
 minutes: 6
 ---
 
@@ -12,14 +12,15 @@ like *"I am verifying your identity now"* with no action call. The
 trace shows `enabled_tools: []` even though the action exists in
 `reasoning.actions:`.
 
-**Cause:** the agent runs as the **Einstein Agent User**, not as you
-the admin. That user needs Apex class access on every action class.
+**Cause:** the agent runs as the **agent's running user** (a dedicated
+service user), not as you the admin. That user needs Apex class access
+on every action class.
 Without it, the planner silently filters the action out of the LLM's
 tool list.
 
 <Mermaid caption="Without Apex access for the running user, the action vanishes from the LLM's tool list silently.">
 {`flowchart LR
-    A["Action exists in<br/>reasoning.actions:"] --> B{"Einstein Agent User<br/>has Apex access?"}
+    A["Action exists in<br/>reasoning.actions:"] --> B{"Agent user has<br/>Apex class access?"}
     B -->|"No"| C["Silently dropped<br/>from enabled_tools"]
     B -->|"Yes"| D["Visible to LLM"]`}
 </Mermaid>

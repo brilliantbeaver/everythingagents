@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
+import { Show, UserButton, SignInButton } from "@clerk/nextjs";
 import { ThemeToggle } from "./theme-toggle";
 import { NotifyCTA } from "./notify-cta";
 import { Wordmark } from "./brand";
@@ -29,7 +29,7 @@ export function Header() {
         <div className="ml-auto flex items-center gap-2">
           <SearchTrigger />
           <ThemeToggle />
-          <SignedOut>
+          <Show when="signed-out">
             <NotifyCTA />
             <SignInButton mode="modal">
               <button
@@ -39,8 +39,8 @@ export function Header() {
                 Sign in
               </button>
             </SignInButton>
-          </SignedOut>
-          <SignedIn>
+          </Show>
+          <Show when="signed-in">
             <UserButton
               appearance={{
                 elements: {
@@ -48,7 +48,7 @@ export function Header() {
                 },
               }}
             />
-          </SignedIn>
+          </Show>
         </div>
       </div>
     </header>
