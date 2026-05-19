@@ -49,22 +49,43 @@ export async function generateMetadata({ params }: { params: Params }) {
   };
 }
 
-function LessonNav({ topic }: { topic: Topic }) {
+function LessonNav({ topic, currentSlug }: { topic: Topic; currentSlug: string }) {
   return (
     <aside className="ui-sans hidden lg:sticky lg:top-20 lg:block lg:self-start">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">On this topic</p>
-      <ol className="mt-2 space-y-1 text-sm">
-        {topic.lessons.map((l) => (
-          <li key={l.slug}>
-            <Link
-              href={`/topics/${topic.slug}/${l.slug}`}
-              className="flex items-baseline gap-2 rounded px-2 py-1 text-foreground/80 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <span className="w-5 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{l.number}.</span>
-              <span className="truncate">{l.title}</span>
-            </Link>
-          </li>
-        ))}
+      <Link
+        href={`/topics/${topic.slug}`}
+        className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
+      >
+        {topic.shortTitle}
+      </Link>
+      <ol className="mt-2 space-y-0.5 text-sm">
+        {topic.lessons.map((l) => {
+          const isCurrent = l.slug === currentSlug;
+          return (
+            <li key={l.slug}>
+              <Link
+                href={`/topics/${topic.slug}/${l.slug}`}
+                aria-current={isCurrent ? "page" : undefined}
+                className={
+                  isCurrent
+                    ? "relative flex items-baseline gap-2 rounded px-2 py-1 font-medium text-foreground before:absolute before:-left-px before:top-1.5 before:bottom-1.5 before:w-[2px] before:rounded-full before:bg-accent"
+                    : "flex items-baseline gap-2 rounded px-2 py-1 text-foreground/70 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                }
+              >
+                <span
+                  className={
+                    isCurrent
+                      ? "w-5 shrink-0 text-right text-xs tabular-nums text-accent"
+                      : "w-5 shrink-0 text-right text-xs tabular-nums text-muted-foreground"
+                  }
+                >
+                  {l.number}.
+                </span>
+                <span className="truncate">{l.title}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ol>
     </aside>
   );
@@ -90,7 +111,7 @@ export default async function LessonPage({ params }: { params: Params }) {
   const MDXContent = await compileMdx(lesson.source);
   return (
     <div className="py-8 sm:py-10 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[240px_minmax(0,1fr)_220px]">
-      <LessonNav topic={topic} />
+      <LessonNav topic={topic} currentSlug={lesson.slug} />
       <article className="min-w-0">
         <Breadcrumbs
           crumbs={[
