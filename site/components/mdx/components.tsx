@@ -15,6 +15,15 @@ import { TurnPipeline } from "@/components/illustrations/turn-pipeline";
 import { TraceTimeline } from "@/components/illustrations/trace-timeline";
 import { LineageConvergence } from "@/components/illustrations/lineage-convergence";
 import { DevLoop } from "@/components/illustrations/dev-loop";
+import { HarnessAnatomy } from "@/components/illustrations/harness-anatomy";
+import { TurnLoop } from "@/components/illustrations/turn-loop";
+import { ContextCompaction } from "@/components/illustrations/context-compaction";
+import { FailureModesGrid } from "@/components/illustrations/failure-modes-grid";
+import { GanLoop } from "@/components/illustrations/gan-loop";
+import { HarnessStack } from "@/components/illustrations/harness-stack";
+import { SixComponentExplorer } from "@/components/interactive/six-component-explorer";
+import { TurnStepper } from "@/components/interactive/turn-stepper";
+import { HarnessSimulator } from "@/components/interactive/harness-simulator";
 
 function H2(props: ComponentProps<"h2">) {
   return <h2 {...props} className="ui-sans mt-12 scroll-mt-20 font-serif text-2xl font-medium tracking-tight text-foreground" />;
@@ -86,4 +95,6 @@ export const mdxComponents = {
   KeyIdea, Callout, Mermaid, KnowledgeCheck, Option, Explanation, Steps, Step, Term,
   SpectrumIllustration, ControlSurfaceStack, HallucinationLeak, DefenseOnion, RefundAgentCutaway,
   TwoFailureModes, TurnPipeline, TraceTimeline, LineageConvergence, DevLoop,
+  HarnessAnatomy, TurnLoop, ContextCompaction, FailureModesGrid, GanLoop, HarnessStack,
+  SixComponentExplorer, TurnStepper, HarnessSimulator,
 };

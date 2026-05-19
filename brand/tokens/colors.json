@@ -1,0 +1,25 @@
+{
+  "$comment": "Everything Agents brand palette. Hex values are the production-resolved equivalents of the OKLCH tokens in site/app/globals.css. Use these directly in any tool that doesn't speak OKLCH (PDF generators, slide decks, third-party CMS).",
+  "light": {
+    "background": { "hex": "#fbf8f2", "oklch": "oklch(98.5% 0.005 80)", "name": "Paper" },
+    "foreground": { "hex": "#1d1a14", "oklch": "oklch(22% 0.01 60)", "name": "Ink" },
+    "muted":      { "hex": "#f3eee3", "oklch": "oklch(96% 0.008 80)", "name": "Paper Soft" },
+    "muted_foreground": { "hex": "#5a544a", "oklch": "oklch(48% 0.01 60)", "name": "Ink Soft" },
+    "border":     { "hex": "#dfd6c5", "oklch": "oklch(90% 0.008 80)", "name": "Hairline" },
+    "accent":     { "hex": "#c8862c", "oklch": "oklch(58% 0.13 70)", "name": "Amber" },
+    "accent_foreground": { "hex": "#fcfcfc", "oklch": "oklch(99% 0 0)", "name": "Paper Bright" }
+  },
+  "dark": {
+    "background": { "hex": "#221f17", "oklch": "oklch(16% 0.005 60)", "name": "Ink Deep" },
+    "foreground": { "hex": "#efebde", "oklch": "oklch(94% 0.005 80)", "name": "Paper Light" },
+    "muted":      { "hex": "#2c281f", "oklch": "oklch(21% 0.008 60)", "name": "Ink Soft" },
+    "muted_foreground": { "hex": "#aaa492", "oklch": "oklch(70% 0.008 80)", "name": "Paper Dim" },
+    "border":     { "hex": "#403a2d", "oklch": "oklch(29% 0.008 60)", "name": "Hairline Dark" },
+    "accent":     { "hex": "#dfb069", "oklch": "oklch(75% 0.12 75)", "name": "Amber Bright" },
+    "accent_foreground": { "hex": "#221f17", "oklch": "oklch(16% 0.005 60)", "name": "Ink Deep" }
+  },
+  "monochrome": {
+    "black": { "hex": "#000000", "name": "Pure Black (printing)" },
+    "white": { "hex": "#ffffff", "name": "Pure White (printing on dark)" }
+  }
+}

@@ -1,0 +1,157 @@
+---
+number: 10
+title: The initializer + coding-agent pattern
+keyIdea: Two prompts, one harness. The initializer writes durable artifacts; the coding agent reads them at session start. This is how Claude Code stays coherent across days.
+minutes: 5
+---
+
+If you've ever worked on a real software project with Claude Code
+across more than one session, you've benefited from this pattern even
+if you didn't know its name.
+
+The pattern is the cleanest answer in the literature to the question:
+*how does an agent stay coherent when each session starts with
+amnesia?*
+
+## Two roles, one harness
+
+The metaphor in Anthropic's writeup (source: 2511.Effective harnesses
+for long-running agents.md) is a software project staffed by
+engineers working in shifts where each shift starts having forgotten
+everything the last one did.
+
+The fix is not to give the engineers better memory. The fix is to
+have them write everything down in a specific format that the next
+shift reads at the start of their day.
+
+Two roles do this:
+
+- **Initializer agent.** Runs once. Sets up the durable artifacts
+  every later session will read.
+- **Coding agent.** Runs in every subsequent session. Reads the
+  artifacts. Picks up incremental work. Updates the artifacts before
+  ending.
+
+The footnote in the original post is worth quoting in full:
+
+> "We refer to these as separate agents in this context only because
+> they have different initial user prompts. The system prompt, set
+> of tools, and overall agent harness was otherwise identical."
+> (source: 2511.Effective harnesses for long-running agents.md, fn 1)
+
+So the "two agents" are really *two prompts over one harness*. This
+turns out to be a very general pattern: any task with a setup phase
+followed by repeated incremental phases can use the same trick.
+
+## The four artifacts
+
+| Artifact | Purpose | Why this form |
+|---|---|---|
+| `feature_list.json` | Exhaustive list of end-to-end features with `passes: false` flags | JSON is empirically more stable against silent model rewrites than Markdown |
+| `claude-progress.txt` | Append-only narrative log of what each session did | Mirrors a human engineer's standup notes; cheap to read, hard to misinterpret |
+| `init.sh` | Brings up the dev server with a single command | Saves tokens; canonicalizes "how to run this thing" so every session starts identically |
+| Initial git commit | Clean baseline | Lets later sessions `git revert` bad changes back to a known-good state |
+
+Each is small. Together they constitute the full state the next
+session needs to be useful.
+
+<Callout type="note" title="Why JSON over Markdown">
+The choice of JSON for the feature list is empirical, not aesthetic.
+The model is markedly less likely to silently rewrite or delete
+JSON entries than Markdown bullets. Strong-constraint > strong-suggestion
+for artifacts where correctness matters. The same logic recommends
+`.json`, `.yaml`, or any structured format the agent can't
+casually re-prose.
+</Callout>
+
+## The coding-agent preamble
+
+Every later session begins with the same scripted sequence — *before*
+any feature work:
+
+1. `pwd` to confirm working directory.
+2. Read `claude-progress.txt` and `feature_list.json`.
+3. `git log --oneline -20` to see recent commits.
+4. Run `./init.sh` to start the dev server.
+5. Use Puppeteer (or equivalent) to run a basic end-to-end smoke test.
+6. *Only then* pick the highest-priority unfinished feature.
+
+The preamble isn't just informational. It's a *consistency check*. If
+the previous session left broken state — a non-running dev server, a
+test that no longer passes, an uncommitted file — steps 4 and 5
+catch it before any new work compounds the mess.
+
+## Why end-to-end testing is non-optional
+
+The single most important step in the preamble is the browser check.
+From the writeup:
+
+> "Without it Claude would mark a feature complete based on a
+> passing unit test even when the feature didn't work for a user.
+> With it, the model could see its own bugs via screenshots and fix
+> them autonomously." (source: 2511.Effective harnesses for
+> long-running agents.md)
+
+This is a specific case of the general principle: a verification
+that uses the same surface a real user would use is harder to fool
+than a verification that runs against a synthetic seam.
+
+Unit tests against a function pass even when the function isn't
+wired up. Browser automation against a running app fails when the
+button isn't there.
+
+## Strengths and limits
+
+**Strengths**
+
+- The agent's cross-session state lives in human-readable files. A
+  human can audit progress at any time.
+- Compaction is not relied upon for correctness — only for staying
+  within a single session.
+- Strong-constraint prompts ("it is unacceptable to remove or edit
+  tests") plus a JSON format produce empirically strong adherence.
+
+**Limits**
+
+- One agent is responsible for both implementation and verification.
+  Even with browser automation, models tend to be lenient with
+  themselves. The [generator–evaluator](/topics/agent-harnesses/09-generator-evaluator)
+  pattern adds a separate judge to fix this.
+- The model still has to *interpret* the artifacts. Residual failures
+  exist where progress notes are incomplete or misleading. AHE's
+  *change manifest as falsifiable contract* (lesson 12) is a
+  stricter discipline for the same problem.
+- Optimized for full-stack web app development. Generalization to
+  scientific research or financial modeling is an open direction the
+  authors explicitly flag.
+
+## The general lesson
+
+Beyond the specific artifacts, the takeaway: **the unit of session
+handoff should be artifacts on disk that look like things a human
+engineer would write.** A feature spec. A progress log. Git commits.
+Not opaque LLM-summary blobs.
+
+The pattern is "what an effective software engineer does every day,
+encoded as files." That's why it transfers to other domains: the
+file shapes match the work shapes.
+
+<KnowledgeCheck question="Why does this pattern use `feature_list.json` rather than `feature_list.md`?">
+  <Option>
+    JSON is faster to parse than Markdown.
+  </Option>
+  <Option correct>
+    Empirically, the model is less likely to silently rewrite or delete entries from JSON than from Markdown.
+  </Option>
+  <Option>
+    JSON is more space-efficient than Markdown.
+  </Option>
+  <Explanation>
+    Parsing speed and space efficiency aren't the issue at agent
+    scale. The reason is behavioral: when given Markdown, the model
+    treats it as prose and feels free to rewrite it; when given
+    JSON, it treats it as structured data and edits surgically.
+    Strong-constraint > strong-suggestion when artifacts carry
+    correctness.
+  </Explanation>
+</KnowledgeCheck>

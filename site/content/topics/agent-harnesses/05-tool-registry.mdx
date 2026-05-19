@@ -1,0 +1,145 @@
+---
+number: 5
+title: The tool registry and what makes it trustworthy
+keyIdea: Tools are typed, validated, and gated. The registry is where hallucinated calls become impossible — or where they slip through.
+minutes: 5
+---
+
+The tool registry is the harness component most people think of as
+"just the tools." It's actually the layer that decides whether a tool
+call is *real* — whether it has the right arguments, comes from an
+allowed source, can run in the current state, and gets logged after
+it runs.
+
+Get it right and a whole class of failures goes away. Get it wrong and
+the model can call functions that don't exist, with arguments that
+don't match the schema, and you find out in production.
+
+## What a tool definition actually contains
+
+A typed tool definition has three pieces:
+
+```text
+name:        Read
+schema:      { file_path: string (required), offset?: int, limit?: int }
+implementation: read_file()
+```
+
+The model sees the name and a description. The harness sees the schema
+and the implementation. **The schema is what the registry checks before
+dispatch.**
+
+That separation is load-bearing. The model's job is to emit a call
+that *looks like* a valid tool invocation. The registry's job is to
+verify that it actually is one. If the model writes
+`Read({ path: "..." })` instead of `Read({ file_path: "..." })`, the
+registry rejects it before any code runs.
+
+<Callout type="pitfall" title="A common pattern that breaks this">
+Implementing a tool that accepts "anything" — `**kwargs`, free-form
+strings, or a JSON blob the implementation parses itself — gives the
+model a place to hide bad calls. The registry can't validate what it
+can't see. Schemas should be as tight as the operation allows.
+</Callout>
+
+## What the registry checks
+
+A trustworthy registry runs at minimum these checks before dispatch:
+
+1. **Tool exists.** The model named a tool actually in the registry.
+2. **Schema match.** Every required argument is present and of the
+   right type. No extras unless the schema allows them.
+3. **Permission.** Lifecycle hooks (lesson 6) run pre-call. They can
+   refuse the call.
+4. **Availability.** The tool may be conditionally available — gated
+   on agent state, user permission, or environment. (See the
+   `available when` pattern from the [guided-determinism
+   topic](/topics/guided-determinism/03-the-mental-model).)
+
+A call that fails any of these never reaches the implementation. It's
+returned to the model as a tool error, the model gets to try again,
+and the world is unchanged.
+
+## Why this is where hallucinations get caught
+
+A "hallucinated tool call" is a call the model invented — wrong
+name, wrong args, or wrong shape. The honest claim is: a typed
+registry makes most hallucinations impossible to *execute*.
+
+It does not make them impossible to *emit*. The model will still
+sometimes write `read_file("foo.py")` when the tool is named
+`Read({ file_path: "foo.py" })`. The registry catches it. The model
+sees the error and corrects. The world is unaffected.
+
+This is most of the value of tool typing. Not "the model never makes
+mistakes" but "the mistakes never reach the implementation."
+
+## Tool descriptions are part of the surface
+
+A subtle point: the *description* you give a tool steers the model's
+choice of when to call it. Identical implementations with different
+descriptions produce different agent behavior.
+
+The Pi Research result from lesson 1 — 6.7% to 68.3% on the same
+model and benchmark — was a tool *format* change. (source:
+2604.agent-harnesses-survey.pdf, citing Bölük 2026) Same model. Same
+task. Different shape on the tool-call surface.
+
+This is one of the easiest harness wins available to you:
+
+- Write the description for the *agent reading it*, not the human
+  reviewing it. "Use this when you need X" beats "Reads a file."
+- Be explicit about when *not* to call the tool. The model will
+  often reach for the wrong tool because nothing told it not to.
+- If the tool returns a complex object, name the fields the agent
+  should care about most. The description is the agent's only docs.
+
+## MCP and the multi-tool world
+
+Modern harnesses don't ship every tool inline. The Model Context
+Protocol (MCP) lets a harness load tools from external servers —
+a GitHub MCP, a database MCP, a browser MCP. From the registry's
+point of view they're identical: typed schemas, validated calls,
+hooked dispatch. The fact that the implementation lives in another
+process is a runtime detail.
+
+This is why **T's job is mediation**, not implementation. The
+registry is a switchboard. It owns the schema and the dispatch
+contract. Anything that wants to be a tool plugs into it.
+
+## A small worked example
+
+The same harness can hold all of these:
+
+```text
+Read         — local file read,         in-process
+Bash         — shell, gated by hook,    in-process
+Edit         — local file edit,         in-process
+github.pr    — GitHub PR ops,           via MCP
+db.query     — read-only SQL,           via MCP, allowlisted
+playwright.click — browser action,      via MCP
+```
+
+Each one has a typed schema. Each one runs through the same registry.
+The only difference between `Read` and `db.query` is the dispatch
+target.
+
+<KnowledgeCheck question="A model emits a tool call with a typo in the argument name. What should the registry do?">
+  <Option>
+    Pass the call through; the implementation will figure it out.
+  </Option>
+  <Option correct>
+    Reject the call before dispatch and return a typed error to the model.
+  </Option>
+  <Option>
+    Try several heuristic argument names that "look right" and pick one.
+  </Option>
+  <Explanation>
+    Schema validation is the registry's job. Pass-through (option 1)
+    leaks malformed inputs into implementation code. Heuristic
+    "fixing" (option 3) silently accepts ambiguous calls and is the
+    seed of every hard-to-debug agent bug. The right behavior is to
+    reject the call cleanly so the model sees a structured error and
+    can correct.
+  </Explanation>
+</KnowledgeCheck>

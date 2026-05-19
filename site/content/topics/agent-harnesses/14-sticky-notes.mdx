@@ -1,0 +1,67 @@
+---
+number: 14
+title: Sticky-note appendix
+keyIdea: The seven things that change how you read every harness paper afterward.
+minutes: 2
+---
+
+The seven that keep showing up. Stick them somewhere visible.
+
+## 1. Six components, six failure modes
+
+`H = (E, T, C, S, L, V)`. When something goes wrong, the question to
+ask first is *which of the six*. Most agent debugging gets faster
+once you can name the component.
+
+## 2. Deterministic shell · soft model core · deterministic shell
+
+The most useful pattern in harness design. Almost every win is some
+variation of "move this from the prompt to the shell." Prompts are
+suggestions; shell code is guarantees.
+
+## 3. State that needs to survive should be in files
+
+Compaction may eat conversational state. A reset definitely will. If
+losing it would break the task, write it down on disk before the
+turn ends. JSON > Markdown for things the agent must not casually
+overwrite.
+
+## 4. Re-test the harness on every model release
+
+Every component encodes an assumption about what the model can't do
+on its own. Those assumptions go stale. Sonnet 4.5 needed context
+resets; Opus 4.6 didn't. The next model will move other things.
+
+## 5. Raw traces beat summaries
+
+Two independent papers found this in 2026. A fault at step 200 may
+be attributable to a decision at step 5; compression severs the
+link. Whatever's downstream — your eyes, an evaluator, an automated
+optimizer — wants to *navigate* the trace, not consume a digest.
+
+## 6. Evaluator > self-critique, when the task is beyond solo
+
+Self-evaluation is unreliable in the same predictable ways every
+time. Tuning a separate skeptical evaluator is far more tractable.
+Stop using the evaluator when the model can do the task solo — the
+evaluator becomes pure overhead.
+
+## 7. Factual harness structure transfers; prose strategy doesn't
+
+AHE's ablation: tools, middleware, and long-term memory each carry
+positive gains alone; system-prompt-only *regresses* by 2.3 pp.
+Invest engineering effort in durable structured components, not in
+tuning the system prompt.
+
+---
+
+That's the topic. From here, the natural directions are:
+
+- The [Testing Agents](/topics/testing-agents) topic, when it lands —
+  how to write specs that exercise these components.
+- The [Observing Agents](/topics/observing-agents) topic — pulling
+  trajectories and turning them into actionable diagnostics.
+- The [Autotuning Agents](/topics/autotuning-agents) topic —
+  closing the loop with the meta-harness ideas from lesson 12.
+
+Each one assumes the vocabulary you just learned.

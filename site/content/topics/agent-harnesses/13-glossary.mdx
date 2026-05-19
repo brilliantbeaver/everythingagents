@@ -1,0 +1,140 @@
+---
+number: 13
+title: Glossary
+keyIdea: Every term-of-art used across the topic, with one-line definitions.
+minutes: 3
+---
+
+A short reference for the named things in this topic.
+
+<Term name="harness">
+The runtime infrastructure around a language model that decides
+what enters context, dispatches tools, persists state, and captures
+trajectories. Not the model. Not the prompt. The code that drives
+both.
+</Term>
+
+<Term name="six-component framework / H = (E, T, C, S, L, V)">
+Meng et al.'s formal definition. A harness is the six-tuple of
+Execution loop, Tool registry, Context manager, State store,
+Lifecycle hooks, and Evaluation interface.
+</Term>
+
+<Term name="execution loop (E)">
+The observe–think–act–commit cycle. Sequences turns, terminates
+cleanly, recovers from errors. Necessary for any system to count as
+a harness.
+</Term>
+
+<Term name="tool registry (T)">
+The typed catalog of tools. Validates schemas before dispatch; routes
+to implementations; mediates between the model's tool calls and the
+implementations that do the work.
+</Term>
+
+<Term name="context manager (C)">
+The component that decides what enters the model's context window
+each turn. Compaction, retrieval, ordering. Most of what
+"context engineering" described in 2025 lives here.
+</Term>
+
+<Term name="state store (S)">
+What survives across turns. Files on disk, git history, vector
+stores, structured memory. Externalized state that doesn't depend on
+the model holding it in context.
+</Term>
+
+<Term name="lifecycle hooks (L)">
+Pre- and post-call interception points. Auth, audit, policy, redaction,
+metrics. The component most underbuilt in real systems.
+</Term>
+
+<Term name="evaluation interface (V)">
+Standardized capture of action trajectories, intermediate states, and
+success signals. What downstream consumers — benchmarks, optimizers,
+analyzers — read directly. Not the same as logging.
+</Term>
+
+<Term name="harness turn">
+One revolution of the execution loop: observe → think → act →
+commit. The unit of execution and the unit of trajectory capture.
+</Term>
+
+<Term name="compaction">
+Summarizing earlier conversation in place so the same agent
+continues with shortened history. Preserves continuity. Doesn't
+eliminate context anxiety.
+</Term>
+
+<Term name="context reset">
+Clearing the context window entirely; a fresh agent rebuilds from
+on-disk handoff artifacts. Eliminates context anxiety; makes the
+handoff the main correctness surface.
+</Term>
+
+<Term name="context anxiety">
+Behavior where a model wraps up work prematurely as it approaches
+what it believes is its context limit. Model-dependent. Mostly
+absent on Opus 4.6+.
+</Term>
+
+<Term name="initializer + coding-agent pattern">
+Two prompts over one harness. The initializer writes durable
+artifacts (feature list, progress file, init script, initial
+commit); the coding agent reads them at session start, picks one
+feature, verifies, commits, and updates progress.
+</Term>
+
+<Term name="generator–evaluator loop">
+GAN-inspired pattern. The generator writes; the evaluator drives the
+live artifact, grades it against a contract, and emits findings.
+Tuning the evaluator to be skeptical is much easier than tuning the
+generator to be self-critical.
+</Term>
+
+<Term name="sprint contract">
+A small file written before code generation that specifies what
+"done" looks like. Shared input to generator and evaluator. The
+tiebreaker when they disagree.
+</Term>
+
+<Term name="natural-language harness (NLAH)">
+A structured natural-language artifact that exposes a harness's
+control logic — contracts, roles, stages, adapters, state semantics,
+failure taxonomy. Consumed by a shared runtime (IHR) so harnesses
+become editable, comparable, and migratable.
+</Term>
+
+<Term name="meta-harness">
+A harness whose task is *designing other harnesses*. A coding-agent
+proposer reads logs and traces from prior runs and proposes new
+harness code. Empirically beats hand-engineered baselines.
+</Term>
+
+<Term name="observability pillars (component / experience / decision)">
+AHE's three-pillar realization of V and L. Component observability =
+file-backed loosely-coupled harness pieces. Experience = layered
+drill-downable trace corpus. Decision = versioned change manifest
+with falsifiable predictions.
+</Term>
+
+<Term name="regression blindness">
+The asymmetry where a self-improving harness can predict what an
+edit will fix (~5× chance) far more reliably than what it will break
+(~2× chance). Named in AHE as the clearest direction for future
+self-evolution loops.
+</Term>
+
+<Term name="verifier–benchmark misalignment">
+A failure mode where local verifier success diverges from the
+benchmark's actual acceptance criterion. Adding more structure can
+move acceptance signals away from benchmark acceptance. Mitigation:
+align verifier criteria to path-addressable artifacts the benchmark
+itself reads.
+</Term>
+
+<Term name="harness engineering">
+The 2026 successor discipline to prompt and context engineering.
+Designing the full six-component runtime — not just the prompt or
+the context. Coined by OpenAI in February 2026.
+</Term>

@@ -140,13 +140,126 @@ export const topics: Topic[] = [
     ],
   },
   {
-    slug: "agent-coding-harnesses",
-    title: "Demystifying Agent Coding Harnesses",
-    shortTitle: "Agent coding harnesses",
+    slug: "agent-harnesses",
+    title: "Demystifying Agent Harnesses",
+    shortTitle: "Agent harnesses",
     oneLine:
-      "What's actually inside a coding harness, how the planner-tools-executor loop runs, and where each design knob lives.",
-    status: "upcoming",
-    lessons: [],
+      "What's actually inside an agent harness, how the planner-tools-executor loop runs, and where each design knob lives. Coding agents are the running example; the patterns generalize.",
+    prereqs:
+      "You've used an agent of some kind (Claude Code, Cursor, a research agent, a customer-service bot). Comfortable reading shell, Python, and JSON. No prior harness theory needed.",
+    status: "available",
+    lessons: [
+      {
+        slug: "01-what-is-a-harness",
+        number: 1,
+        title: "What is a harness, really?",
+        keyIdea:
+          "A harness is the code around the model that decides what it sees, what it can call, and what survives between turns. Not the model. Not the prompt. The runtime around them.",
+        minutes: 5,
+      },
+      {
+        slug: "02-the-six-components",
+        number: 2,
+        title: "The six components: E, T, C, S, L, V",
+        keyIdea:
+          "Every harness implements six runtime functions: Execution loop, Tool registry, Context manager, State store, Lifecycle hooks, and Evaluation interface. Six failure modes map one-to-one.",
+        minutes: 7,
+      },
+      {
+        slug: "03-anatomy-of-a-turn",
+        number: 3,
+        title: "Anatomy of one harness turn",
+        keyIdea:
+          "Observe → think → act → commit. The deterministic stages around the model are where almost all harness design happens.",
+        minutes: 6,
+      },
+      {
+        slug: "04-context-management",
+        number: 4,
+        title: "Context: compaction, resets, and anxiety",
+        keyIdea:
+          "Two ways past the context limit: summarize in place, or reset and hand off via files. Choice depends on the model and what your handoff artifacts can carry.",
+        minutes: 7,
+      },
+      {
+        slug: "05-tool-registry",
+        number: 5,
+        title: "The tool registry and what makes it trustworthy",
+        keyIdea:
+          "Tools are typed, validated, and gated. The registry is where hallucinated calls become impossible — or where they slip through.",
+        minutes: 5,
+      },
+      {
+        slug: "06-state-and-lifecycle",
+        number: 6,
+        title: "State stores and lifecycle hooks",
+        keyIdea:
+          "State (S) is what survives turns. Lifecycle hooks (L) intercept every call for auth, logging, and policy. Both are systematically underbuilt.",
+        minutes: 5,
+      },
+      {
+        slug: "07-evaluation-interface",
+        number: 7,
+        title: "The evaluation interface — and why it's underbuilt",
+        keyIdea:
+          "V captures structured trajectories so something downstream can score them. Most harnesses log to text and stop there. That's why traces win and summaries lose.",
+        minutes: 5,
+      },
+      {
+        slug: "08-failure-modes",
+        number: 8,
+        title: "Six failure modes, six fixes",
+        keyIdea:
+          "Execution runaway, tool misuse, context blowout, state loss, unmonitored side effects, unobservable behavior. Each maps to one component, each has a known harness-level fix.",
+        minutes: 6,
+      },
+      {
+        slug: "09-generator-evaluator",
+        number: 9,
+        title: "The generator–evaluator loop",
+        keyIdea:
+          "Self-evaluation is unreliable. Splitting the doer from the judge — and tuning the judge to be skeptical — is the first structural lever you reach for on subjective work.",
+        minutes: 6,
+      },
+      {
+        slug: "10-initializer-coding-agent",
+        number: 10,
+        title: "The initializer + coding-agent pattern",
+        keyIdea:
+          "Two prompts, one harness. The initializer writes durable artifacts; the coding agent reads them at session start. This is how Claude Code stays coherent across days.",
+        minutes: 5,
+      },
+      {
+        slug: "11-natural-language-harnesses",
+        number: 11,
+        title: "Natural-language harnesses (CLAUDE.md, skills, AGENTS.md)",
+        keyIdea:
+          "The control logic of a harness can live in editable text. Contracts, roles, stages, state semantics, failure taxonomy — written once, run by a shared runtime.",
+        minutes: 6,
+      },
+      {
+        slug: "12-meta-harness",
+        number: 12,
+        title: "Meta-harness: searching the harness space",
+        keyIdea:
+          "If harness design matters this much, automate it. Give a coding agent grep-and-cat over prior runs and let it propose new harnesses. Raw traces beat summaries by a wide margin.",
+        minutes: 6,
+      },
+      {
+        slug: "13-glossary",
+        number: 13,
+        title: "Glossary",
+        keyIdea: "Every term-of-art used across the topic, with one-line definitions.",
+        minutes: 3,
+      },
+      {
+        slug: "14-sticky-notes",
+        number: 14,
+        title: "Sticky-note appendix",
+        keyIdea: "The seven things that change how you read every harness paper afterward.",
+        minutes: 2,
+      },
+    ],
   },
   {
     slug: "vibe-coding-reliable-agents",

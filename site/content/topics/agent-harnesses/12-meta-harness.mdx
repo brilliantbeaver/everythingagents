@@ -1,0 +1,179 @@
+---
+number: 12
+title: "Meta-harness: searching the harness space"
+keyIdea: If harness design matters this much, automate it. Give a coding agent grep-and-cat over prior runs and let it propose new harnesses. Raw traces beat summaries by a wide margin.
+minutes: 6
+---
+
+By now the framing should feel obvious: harnesses have a small,
+named set of components; behavior is sensitive to their design;
+each component is editable. The natural next question is whether
+this whole loop can run *without a human in it*.
+
+Two papers from 2026 say yes, in two different ways.
+
+## Stanford/MIT's Meta-Harness
+
+The thesis from Lee et al. (source: 2603.meta-harness.pdf):
+
+> "Changing the harness around a fixed large language model can
+> produce a 6× performance gap on the same benchmark."
+
+If that gap is real, harness engineering is itself worth automating.
+
+Their approach treats harness *code* as the optimization target. A
+coding-agent proposer (Claude Code with Opus 4.6) iteratively
+proposes new harness implementations, evaluates them, and stores
+**all** prior code, scores, and execution traces on a filesystem the
+proposer can `grep` and `cat`.
+
+The outer loop is deliberately minimal:
+
+```text
+1. Initialize a population of seed harnesses; create filesystem D for logs.
+2. Evaluate each seed; write (code, scores, traces) into D.
+3. For N iterations:
+     a. Proposer queries D — typical iteration reads 82 files,
+        references 20+ prior candidates.
+     b. Proposer proposes k new harnesses.
+     c. Validate interface, evaluate, append results to D.
+4. Return the Pareto frontier on a held-out test set.
+```
+
+There's no parent-selection rule, no archive structure, no fixed
+mutation operators. The proposer alone decides which prior
+artifacts to inspect, what failure modes to address, and whether to
+make a local edit or a full rewrite. (source: 2603.meta-harness.pdf)
+
+This is a clean expression of the lesson 7 result: **raw traces
+beat summaries.** When you're optimizing harnesses, give the
+optimizer the actual execution histories, not condensed digests.
+
+## What the discovered harnesses beat
+
+| Domain | Result |
+|---|---|
+| Online text classification | +7.7 pts over ACE *with 4× fewer context tokens* |
+| Math reasoning (IMO-level) | +4.7 pts average over no-retrieval, across five held-out models |
+| TerminalBench-2 (Opus 4.6) | 76.4% — #2 on the leaderboard |
+| TerminalBench-2 (Haiku 4.5) | 37.6% — **#1**, beating Goose by 2.1 pts |
+
+The classification result is interesting because the discovered
+harness uses *fewer* tokens than the baseline. The optimizer found
+strategies that were both more accurate and cheaper.
+
+## Fudan/Peking's AHE
+
+A concurrent paper from April 2026 (source:
+2604.auto-evolution-coding-agents.pdf) attacks the same problem from
+a different angle: instead of search over harness code, it does
+*structured evolution* of a coding-agent harness with the model held
+fixed.
+
+AHE's central claim is that automated harness evolution is
+bottlenecked by **observability, not capability**. The same Evolve
+Agent that under-performs on raw, unstructured traces succeeds on a
+structured corpus.
+
+Three observability pillars:
+
+1. **Component observability.** The harness is decomposed into
+   seven file-backed component types (system prompt, tool description,
+   tool implementation, middleware, skill, sub-agent config,
+   long-term memory). Loose coupling. One edit = one git commit.
+2. **Experience observability.** A debugger agent walks each
+   trajectory and writes a per-task root-cause report; an aggregated
+   ~10K-token overview is the entry point each round; raw traces
+   stay available.
+3. **Decision observability.** Every edit pairs with a self-declared
+   *prediction* in a versioned change manifest. Failure evidence,
+   inferred root cause, predicted fixes, predicted at-risk
+   regressions. Next round verifies or falsifies.
+
+Ten iterations on TerminalBench 2 lift pass@1 from **69.7% to 77.0%**
+— beating Codex (71.9), ACE (68.9), and TF-GRPO (72.3). The frozen
+harness *transfers* to SWE-bench-verified and to three different
+model families with +5.1 to +10.1 pp gains.
+
+## The two big findings, side by side
+
+Both papers converge on the same lesson from different sides:
+
+| Meta-Harness (search) | AHE (evolution) |
+|---|---|
+| Three conditions tested: scores-only (34.6), scores+summary (34.9), full traces (50.0) | Same Evolve Agent fails on raw unstructured traces, succeeds on structured corpus |
+| Compression severs causal links | "The bottleneck was input shape, not agent intelligence" |
+| Code-space search regularizes — coding models propose coherent algorithms | Factual harness structure transfers; system-prompt-only changes regress |
+
+The shared lesson:
+
+<KeyIdea>
+A harness fault at step 200 may be attributable to a decision made
+at step 5. Aggressive summarization severs the link. The
+information shape your optimizer (or your evaluator, or your
+on-call human) sees is more important than the optimizer's raw
+intelligence.
+</KeyIdea>
+
+This is also why V matters (lesson 7). A harness without a real
+evaluation interface can't be optimized automatically. Whatever's
+downstream — search, evolution, or just a human reviewer — needs
+something they can navigate.
+
+## What to take from this
+
+Two practical things even if you never run an automated
+harness-search loop:
+
+**Build the V you'd want for one.** If a future system might want
+to optimize against your traces, the work is mostly serialization.
+Pick a schema, version it, write everything in one consistent form.
+You don't need a meta-harness to benefit from clean trajectories.
+
+**Treat changes to your own harness like AHE treats them.** Pair
+each edit with a prediction: what will this fix, what might it
+break. Verify the prediction next round. Roll back the edits whose
+predictions failed. This is the discipline AHE codifies; doing it
+informally as a human still helps.
+
+## The other big claim worth flagging
+
+AHE's component-level ablation (source:
+2604.auto-evolution-coding-agents.pdf):
+
+| Component swapped in alone | Δ pp |
+|---|---|
+| Long-term memory only | +5.6 |
+| Tool only | +3.3 |
+| Middleware only | +2.2 |
+| **System prompt only** | **−2.3** |
+
+The system prompt encodes 79 lines of "universal discipline" whose
+executability *depends on* the other three. **Factual harness
+structure transfers; prose-level strategy in the system prompt
+does not.**
+
+This is the cleanest empirical evidence to date for why prompt-only
+self-evolution systematically under-performs full-harness
+evolution. It's also why this topic spends so little time on
+"prompt the agent to be careful." The leverage is somewhere else.
+
+<KnowledgeCheck question="Both Meta-Harness and AHE converge on a finding about what to feed the optimizer. What is it?">
+  <Option>
+    A short, well-summarized digest of prior runs is best — keeps the optimizer's context clean.
+  </Option>
+  <Option correct>
+    Raw traces (or a layered, drill-downable corpus) beat compressed summaries because compression severs causal links between earlier decisions and later failures.
+  </Option>
+  <Option>
+    A scalar score per run is enough; details obscure the signal.
+  </Option>
+  <Explanation>
+    Both papers explicitly test summarization (Meta-Harness: scores
+    +summary at 34.9 vs. full traces at 50.0; AHE: same Evolve Agent
+    fails on raw and succeeds on a structured drill-downable
+    corpus). The cause is the same in both: a fault at step 200 may
+    be attributable to a decision at step 5. Compression severs
+    that link. Detail wins.
+  </Explanation>
+</KnowledgeCheck>

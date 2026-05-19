@@ -45,13 +45,16 @@ export function SearchTrigger() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Search lessons"
-        title="Search lessons"
-        className="ui-sans inline-flex h-9 items-center gap-2 rounded-md border border-border bg-transparent px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3"
+        aria-label="Search the site"
+        aria-haspopup="dialog"
+        title="Search the site"
+        className="ui-sans group inline-flex h-9 w-full items-center gap-2 rounded-full border border-border bg-muted/50 px-3 text-left text-sm text-muted-foreground transition-colors hover:border-accent/40 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-72 lg:w-80"
       >
-        <Search aria-hidden className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Search</span>
-        <kbd className="hidden rounded border border-border bg-muted px-1 py-0.5 font-mono text-[10px] text-muted-foreground/80 sm:inline-block">
+        <Search aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-foreground/70" />
+        <span className="flex-1 truncate text-muted-foreground">
+          Search lessons, headings, ideas…
+        </span>
+        <kbd className="ml-auto hidden shrink-0 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground/80 sm:inline-block">
           {isMac ? "⌘K" : "Ctrl+K"}
         </kbd>
       </button>
