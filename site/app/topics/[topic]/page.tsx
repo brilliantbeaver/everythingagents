@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { findTopic, topics, topicMinutes } from "@/lib/registry";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { NeurosymbolicFrame } from "@/components/illustrations/neurosymbolic-frame";
+import { HarnessSixComponents } from "@/components/illustrations/harness-six-components";
 
 type Params = Promise<{ topic: string }>;
 
@@ -134,6 +135,43 @@ export default async function TopicPage({ params }: { params: Params }) {
                   className="text-accent hover:underline"
                 >
                   More on the research lineage →
+                </Link>
+              </p>
+            </div>
+          </section>
+        )}
+
+        {t.slug === "agent-harnesses" && (
+          <section className="mt-6 max-w-3xl">
+            <p className="max-w-prose text-sm leading-relaxed text-foreground/85">
+              An agent harness is the runtime around the model. Strip a
+              harness down and you find six concerns: an{" "}
+              <strong className="font-semibold">execution loop</strong>,
+              a typed{" "}
+              <strong className="font-semibold">tool registry</strong>,
+              a{" "}
+              <strong className="font-semibold">context manager</strong>,
+              a{" "}
+              <strong className="font-semibold">state store</strong>,
+              {" "}
+              <strong className="font-semibold">lifecycle hooks</strong>,
+              and an{" "}
+              <strong className="font-semibold">evaluation interface</strong>.
+              Each one is a separate failure mode, each one is a separate
+              place to look first when behavior gets weird. The two in
+              amber — State and Eval — are the ones the rest of the
+              industry systematically underbuilds.
+            </p>
+            <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
+              <HarnessSixComponents className="w-full" />
+              <p className="ui-sans mt-3 text-xs text-muted-foreground">
+                The harness wraps the model. The model is opaque; the
+                six concerns around it are not.{" "}
+                <Link
+                  href="/topics/agent-harnesses/02-the-six-components"
+                  className="text-accent hover:underline"
+                >
+                  Open lesson 2 for the full breakdown →
                 </Link>
               </p>
             </div>

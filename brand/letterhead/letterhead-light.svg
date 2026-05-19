@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1754" width="1240" height="1754">
+  <!-- A4 at 150 DPI: 1240 x 1754 -->
+  <rect width="1240" height="1754" fill="#fbf8f2"/>
+
+  <!-- Header band -->
+  <g transform="translate(96 96)">
+    <g>
+      <path d="M0 0 L0 36 L36 36 Z" fill="#c8862c"/>
+      <rect x="0" y="0" width="36" height="36" rx="5" fill="none" stroke="#1d1a14" stroke-width="2.4"/>
+      <path d="M0 0 L36 36" stroke="#1d1a14" stroke-width="2.4" stroke-linecap="square"/>
+    </g>
+    <text
+      x="56" y="28"
+      font-family="Source Serif 4, Georgia, serif"
+      font-size="22"
+      font-weight="600"
+      letter-spacing="-0.22"
+      fill="#1d1a14"
+    >Everything Agents</text>
+  </g>
+  <line x1="96" y1="160" x2="1144" y2="160" stroke="#dfd6c5" stroke-width="1"/>
+
+  <!-- Body placeholder text (replace at use) -->
+  <text x="96" y="280" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#5a544a">[ document body goes here ]</text>
+
+  <!-- Footer -->
+  <line x1="96" y1="1604" x2="1144" y2="1604" stroke="#dfd6c5" stroke-width="1"/>
+  <g transform="translate(96 1632)">
+    <text font-family="Inter, system-ui, sans-serif" font-size="11" fill="#5a544a">everythingagents.org</text>
+    <text x="1048" text-anchor="end" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#5a544a">Page 1</text>
+  </g>
+</svg>

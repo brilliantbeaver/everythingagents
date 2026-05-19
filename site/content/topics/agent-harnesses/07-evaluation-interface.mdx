@@ -1,0 +1,172 @@
+---
+number: 7
+title: The evaluation interface — and why it's underbuilt
+keyIdea: V captures structured trajectories so something downstream can score them. Most harnesses log to text and stop there. That's why traces win and summaries lose.
+minutes: 5
+---
+
+The evaluation interface (V) is the component most teams *think*
+they have because they have logs. They almost certainly don't.
+
+The distinction sounds pedantic until you try to do anything with
+the data. Logs answer "what happened?" The evaluation interface
+answers "did the agent advance toward its goal?" The first is for
+humans reading after the fact. The second is for code reading
+*at scale*.
+
+## L vs V — a sharp distinction
+
+From the survey (source: 2604.agent-harnesses-survey.pdf §2.2):
+
+> "A system with only L can tell you that a tool was called and
+> when; a system with V can tell you whether that tool call
+> advanced the agent toward its goal."
+
+Both intercept the execution stream. The difference is *what they
+emit*.
+
+| | Lifecycle hooks (L) | Evaluation interface (V) |
+|---|---|---|
+| Purpose | operational interception | structured trajectory capture |
+| Emits | log lines, audit records, metrics | typed action sequences with success signals |
+| Schema | per-team, ad-hoc | canonical, standardized |
+| Consumer | humans, dashboards | benchmarks, automated optimizers |
+| Required for HAL-style eval | no | yes |
+
+You can have a fully-featured L (every call logged, every error
+audited) and still have no V. You can also have a primitive L (just
+print statements) but a strong V (a structured trajectory file the
+benchmark harness reads directly). They're orthogonal.
+
+## What a structured trajectory contains
+
+The minimum useful shape:
+
+```json
+{
+  "session_id": "...",
+  "task": { "id": "...", "goal": "..." },
+  "steps": [
+    {
+      "step": 1,
+      "phase": "act",
+      "tool": "Read",
+      "args": { "file_path": "auth.py" },
+      "result_hash": "sha256:...",
+      "ok": true,
+      "latency_ms": 14,
+      "tokens": { "in": 1200, "out": 30 },
+      "state_delta": { "recent_files": ["auth.py"] }
+    },
+    ...
+  ],
+  "final_state": { "passes": true, "files_touched": [...] }
+}
+```
+
+A consumer of this can answer all of:
+
+- Did the task succeed? (final_state.passes)
+- How many tool calls did it take? (steps.length)
+- What did it cost? (sum of tokens)
+- Where did it spend its time? (latency_ms histogram)
+- Did the agent ever try to call a non-existent tool? (failed
+  registry validations are typed errors here, not log lines)
+- Two harnesses on the same task: did they take the same path?
+  (compare step sequences)
+
+A `print` statement in a log file can express none of these
+without parsing.
+
+## Why "raw traces" beats "summary"
+
+This is one of the most counterintuitive empirical results in the
+literature, and it shows up twice independently.
+
+**Meta-Harness**'s ablation (source: 2603.meta-harness.pdf):
+
+| Condition given to the optimizer | Median score |
+|---|---|
+| Scores only | 34.6 |
+| Scores + summary | 34.9 |
+| Full traces | **50.0** |
+
+Summaries don't recover the missing signal. Even the best candidate
+found with summaries fails to match the *median* candidate found
+with raw trace access.
+
+**AHE** arrives at the same place from the coding-agent side
+(source: 2604.auto-evolution-coding-agents.pdf): the same Evolve
+Agent under-performs on raw, unstructured traces and succeeds on a
+structured corpus that lets it drill down to whatever step it
+needs.
+
+Both papers point to the same explanation:
+
+<KeyIdea>
+A harness fault at step 200 may be attributable to a decision made
+at step 5. Aggressive summarization severs the link. Raw traces
+preserve it.
+</KeyIdea>
+
+This is why V matters. A good V is precisely the surface that lets
+something downstream — a human debugger, a benchmark, a meta-harness
+optimizer — *navigate* the trace, not summarize it.
+
+## The "progressive disclosure" pattern
+
+You don't have to choose between summaries and raw. AHE's design is
+a clean middle: a layered, drill-down corpus.
+
+- **Per-task root-cause report.** A debugger agent walks the
+  trajectory, identifies the inferred root cause, and writes a
+  structured summary with a pass/fail status.
+- **Benchmark-level overview** (~10K tokens). Aggregates the
+  per-task reports.
+- **Raw and lightly-processed traces** still live behind the
+  overview, addressable by path.
+
+The evolver reads the overview by default and walks back to raw
+logs only when it needs to verify a claim. Best of both worlds:
+cheap to read, never lossy.
+
+## What "having V" looks like in practice
+
+A useful test: can a script that's never seen your harness compute
+a per-task pass rate from your trace files?
+
+If yes, you have V. If the answer involves "well, you'd parse the
+log lines and look for the string `[done]`" — you don't.
+
+The good news is that V is mostly a serialization discipline. Take
+the things you already know at each turn — tool, args, result, ok,
+latency — and write them as one structured object instead of three
+log lines. Decide on a schema, version it, document it. That's V.
+
+<Callout type="note" title="Why this is the underbuilt component">
+Logging feels like it covers V. It doesn't, because logs are
+unparseable without effort. The fix is small (a schema and a
+serializer) and the leverage is huge — automated harness
+optimization, cross-harness comparison, regression tracking — but
+the small fix doesn't get done because logs feel like they're already
+doing the job.
+</Callout>
+
+<KnowledgeCheck question="What's the practical test for whether your harness has a real V?">
+  <Option>
+    Whether you can read the logs and tell what happened.
+  </Option>
+  <Option correct>
+    Whether a script that's never seen your harness can compute a per-task pass rate from your trace files.
+  </Option>
+  <Option>
+    Whether the harness logs every tool call to disk.
+  </Option>
+  <Explanation>
+    Option 1 is L (humans reading logs). Option 3 is also closer to L
+    (logging happened). The V criterion is consumability by code:
+    can a downstream tool — benchmark, optimizer, analyzer — read
+    the trajectories *without* knowing your specific harness? That
+    only works if the trajectories are in a canonical, typed format.
+  </Explanation>
+</KnowledgeCheck>

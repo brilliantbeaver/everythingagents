@@ -1,0 +1,111 @@
+---
+number: 1
+title: What is a harness, really?
+keyIdea: A harness is the code around the model that decides what it sees, what it can call, and what survives between turns. Not the model. Not the prompt. The runtime around them.
+minutes: 5
+---
+
+When you use Claude Code, three things are working together.
+
+There's the **model** — the thing that produces tokens. There's the
+**prompt** — the text you typed plus whatever the system loaded around
+it. And there's something less talked about: the **harness**, the code
+that decides what gets shown to the model, what tools it can call, and
+what survives when the conversation gets too long.
+
+This topic is about that third thing.
+
+<HarnessStack className="my-6 w-full" />
+
+<KeyIdea>
+The harness is the *runtime* of an agent. The prompt is one input to a
+single turn; the harness is the program that runs many turns, manages
+tools, persists state, and decides what to do when something goes
+wrong.
+</KeyIdea>
+
+## A definition that holds up
+
+Stanford and MIT's **Meta-Harness** paper (March 2026) puts it this
+way: a harness is "the code that determines what information to store,
+retrieve, and present to the model." (source: 2603.meta-harness.pdf)
+
+So a bare API call to a model is not a harness. A `for` loop that
+sends `tool_call` results back is the seed of one. A real harness has
+policies for *all* of:
+
+- when to stop or recover from errors
+- which tools exist and which arguments are valid
+- what to keep in the context window and what to drop
+- what survives a turn, a session, a week
+- who is allowed to do what, and what gets logged
+- how the trajectory gets captured for later analysis
+
+The next lesson gives you the names — `E, T, C, S, L, V` — and shows
+how each one maps to a specific failure mode you've probably already hit.
+
+## Why this matters now
+
+Three things changed between 2024 and 2026 that turned harness design
+from a sideshow into the binding constraint.
+
+**Models got long-horizon enough that prompt-level optimization
+plateaued.** A perfect prompt doesn't help if the agent loses its place
+between context windows or marks a half-built feature as done.
+
+**Production data revealed harness, not model, as binding.** Pi
+Research changed *only* the format of an edit-tool and watched a
+benchmark score go from 6.7% to 68.3% on the same model. (source:
+2604.agent-harnesses-survey.pdf) LangChain's DeepAgents reported a
++26% gain from harness-only changes on TerminalBench 2.0. The pattern
+keeps repeating: the model isn't moving, the harness is.
+
+**The harness became something you can actually *engineer*.** OpenAI
+coined the term "harness engineering" in February 2026 alongside the
+Codex deployment. By April, two papers had shown that harnesses could
+be searched and evolved automatically. We'll get to those in lesson 12.
+
+<Callout type="note" title="A useful frame">
+2022–2024 was prompt engineering. 2025 was context engineering. 2026 is
+harness engineering. Each era expands scope rather than replacing the
+prior one — modern harnesses still contain carefully crafted prompts —
+but the binding constraint moved.
+</Callout>
+
+## What you'll learn here
+
+By the end of this topic you will:
+
+- Know the six components every real harness implements, and the six
+  failure modes they correspond to.
+- Be able to describe what happens inside one turn — the four phases
+  and which deterministic stages run on each side of the model.
+- Understand context compaction versus context resets, and when each
+  one is the right call.
+- Recognize the three big patterns that show up in every production
+  harness: the initializer + coding agent, the generator–evaluator
+  loop, and the natural-language harness.
+- Have a working mental model of how something like Claude Code
+  actually runs, end to end.
+
+We'll build to a small interactive simulator you can step through to
+watch a turn unfold, with the option to disable individual components
+and see what breaks.
+
+<KnowledgeCheck question="Which of these is closest to what 'harness' means in this topic?">
+  <Option correct>
+    The runtime around the model — the code that decides what enters context, dispatches tools, persists state, and captures trajectories.
+  </Option>
+  <Option>
+    The system prompt and all the few-shot examples sent to the model on each turn.
+  </Option>
+  <Option>
+    The model itself, viewed as a black box you call from your application.
+  </Option>
+  <Explanation>
+    The system prompt is one input to one turn. The model is the thing
+    being driven. The harness is the program that does the driving:
+    loop, tools, context, state, hooks, evaluation. The next lesson
+    names each of those six pieces.
+  </Explanation>
+</KnowledgeCheck>

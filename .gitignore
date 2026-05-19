@@ -1,0 +1,15 @@
+# Repo-root ignores. Per-project gitignores (e.g. site/.gitignore) handle
+# their own build outputs; this file catches secrets and OS noise that
+# shouldn't ever land in any commit.
+
+# Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

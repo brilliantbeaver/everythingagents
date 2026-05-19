@@ -67,22 +67,16 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
 
   const results = useMemo(() => {
     const q = query.trim();
-    if (!q) {
-      return entries
-        .slice()
-        .sort(
-          (a, b) =>
-            a.topicSlug.localeCompare(b.topicSlug) ||
-            a.lessonNumber - b.lessonNumber,
-        )
-        .slice(0, 12);
-    }
+    // Empty input: show no results. The user asked for results to appear
+    // only when they've typed something. The empty-state message is
+    // rendered in the JSX below, not as a fake result row.
+    if (!q) return [];
     return fuse.search(q, { limit: 12 }).map((r) => r.item);
-  }, [query, fuse, entries]);
+  }, [query, fuse]);
 
   function go(entry: SearchEntry) {
     onOpenChange(false);
-    router.push(`/topics/${entry.topicSlug}/${entry.lessonSlug}`);
+    router.push(entry.href);
   }
 
   function snippet(entry: SearchEntry): string {
@@ -126,25 +120,42 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
             </kbd>
           </div>
           <Command.List className="max-h-[60vh] overflow-y-auto p-2">
-            {loaded && results.length === 0 && (
+            {/* Empty-state messaging — three cases:
+                (a) index still loading,
+                (b) input empty (encourage the user to type),
+                (c) input non-empty but zero matches. */}
+            {!loaded && (
+              <p className="ui-sans px-3 py-8 text-center text-sm text-muted-foreground">
+                Loading lessons…
+              </p>
+            )}
+            {loaded && query.trim() === "" && (
+              <p className="ui-sans px-3 py-10 text-center text-sm text-muted-foreground">
+                Type to search across all tutorials, lessons, and headings.
+              </p>
+            )}
+            {loaded && query.trim() !== "" && results.length === 0 && (
               <Command.Empty className="ui-sans px-3 py-8 text-center text-sm text-muted-foreground">
-                No lessons match that.
+                Nothing matches that yet.
               </Command.Empty>
             )}
             {results.map((entry) => (
               <Command.Item
-                key={`${entry.topicSlug}/${entry.lessonSlug}`}
-                value={`${entry.lessonTitle} ${entry.keyIdea} ${entry.lessonSlug}`}
+                key={entry.href}
+                value={`${entry.lessonTitle} ${entry.keyIdea} ${entry.topicTitle} ${entry.lessonSlug}`}
                 onSelect={() => go(entry)}
                 className="ui-sans flex cursor-pointer items-start gap-3 rounded-md px-3 py-2 text-sm aria-selected:bg-muted/60"
               >
                 <span className="ui-sans mt-0.5 inline-block min-w-[28px] shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                  {entry.lessonNumber}.
+                  {entry.kind === "lesson" ? `${entry.lessonNumber}.` : "·"}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-serif text-base text-foreground">{entry.lessonTitle}</span>
+                  <span className="block font-serif text-base text-foreground">
+                    {entry.lessonTitle}
+                  </span>
                   <span className="ui-sans block truncate text-xs text-muted-foreground">
-                    {entry.topicTitle} · {snippet(entry)}
+                    {entry.kind === "lesson" ? `${entry.topicTitle} · ` : "Topic · "}
+                    {snippet(entry)}
                   </span>
                 </span>
                 <ArrowRight aria-hidden className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground" />

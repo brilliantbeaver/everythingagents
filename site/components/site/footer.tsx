@@ -13,9 +13,6 @@ export function Footer() {
           <Link href="/topics" className="hover:text-foreground">
             Topics
           </Link>
-          <Link href="/glossary" className="hover:text-foreground">
-            Glossary
-          </Link>
         </nav>
       </div>
     </footer>

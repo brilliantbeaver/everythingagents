@@ -1,0 +1,137 @@
+---
+number: 8
+title: Six failure modes, six fixes
+keyIdea: "Execution runaway, tool misuse, context blowout, state loss, unmonitored side effects, unobservable behavior. Each maps to one component, each has a known harness-level fix."
+minutes: 6
+---
+
+The clearest reason to learn the six-tuple is that it lets you name
+what's wrong when an agent misbehaves. Almost every recurring failure
+mode in long-running coding agents falls into one of six bins.
+
+<FailureModesGrid className="my-6 w-full" />
+
+## The simulator, with components disabled
+
+The cleanest way to feel each failure mode is to disable the
+component it corresponds to. Below is a small harness simulator
+running two real-shaped tasks. Try disabling **C**, **S**, **L**, or
+**V** in turn and see what fails. (E and T are required by
+definition; you can't run without them.)
+
+<HarnessSimulator />
+
+A few patterns the simulator makes visible:
+
+- Disable **C** on the longer task and the context bar overflows
+  partway through. The harness aborts.
+- Disable **S** and the task technically completes its current
+  feature, but no progress file gets written. The next session
+  would start blind.
+- Disable **L** on `Bash` and the audit/permission step skips. The
+  call still runs — that's the point. Without L, side effects are
+  unmonitored.
+- Disable **V** and the trace stops capturing structured trajectory
+  entries. Steps still execute; you just can't reproduce them or
+  score them later.
+
+## The principal six (survey)
+
+| # | Failure mode | Component | Symptom | Harness-level fix |
+|---|---|---|---|---|
+| 1 | Execution runaway | E | Loop never terminates; no error recovery arc | Make `δ` total over the input alphabet; add explicit error → recovery arcs; budget on iterations |
+| 2 | Tool misuse | T | Hallucinated calls; bad arguments; ungoverned composition | Typed schemas; pre-dispatch validation; tight tool descriptions |
+| 3 | Context blowout | C | History grows unbounded; lost-in-the-middle; cost explosion | Compaction or resets (lesson 4); retrieval; ordered prompts |
+| 4 | State loss on failure | S | Multi-step task interrupted; no recovery point | Externalize state; path-addressable artifacts; commit per feature |
+| 5 | Unmonitored side effects | L | Emails sent, files modified, no log | PreToolUse / PostToolUse hooks; audit channel; permission gates |
+| 6 | Unobservable behavior | V | Can't reconstruct what happened; can't compare across runs | Canonical structured trajectories; progressive disclosure |
+
+## Failure modes specific to long-running coding agents
+
+The four mapped by Anthropic in the long-running-agents post (source:
+2511.Effective harnesses for long-running agents.md) are special
+cases of S and C:
+
+1. **Declaring victory too early.** A later session sees prior
+   progress and concludes the project is done. *Fix*: an exhaustive
+   `feature_list.json` with `passes: false` flags. The agent can
+   only flip a flag after end-to-end verification.
+
+2. **Leaving the environment buggy or undocumented.** *Fix*:
+   initial git commit, progress file, and `init.sh` written by the
+   initializer; coding agent always commits and updates progress
+   at the end of a session.
+
+3. **Marking features done prematurely.** *Fix*: end-to-end
+   browser-based self-verification *before* flipping the flag. Unit
+   tests aren't enough; the model needs to see the feature work.
+
+4. **Wasting time figuring out how to run the app.** *Fix*:
+   `init.sh` produced once by the initializer, run at the start of
+   every later session.
+
+All four are S-component failures dressed in coding-agent clothes:
+state that should have survived didn't, or wasn't read when it
+should have been.
+
+## Failure modes from the meta-loop
+
+Once you start *automating* harness improvements (lesson 12), two
+new failure modes show up that the original six don't fully capture:
+
+**Regression blindness.** AHE's measurements (source:
+2604.auto-evolution-coding-agents.pdf): the Evolve Agent's
+fix-precision is 5× chance, but its regression-precision is only
+2× chance. It can name what an edit will help. It cannot reliably
+name what it will break.
+
+The fix is decision observability — a versioned change manifest
+where every edit predicts both fixes *and* regressions, and the
+*next* round verifies or falsifies the predictions. Bad edits get
+rolled back at file granularity.
+
+**Verifier–benchmark misalignment** (NLAH paper, source:
+2603.natural-language-harnesses.pdf). A verifier may approve a
+locally plausible repair that misses the benchmark evaluator's
+acceptance criterion. Adding more structure can move acceptance
+signals *away* from benchmark acceptance.
+
+The fix is to align verifier criteria to the *final acceptance
+object* (path-addressable artifacts, explicit object checks)
+rather than to screen plausibility.
+
+## The discipline this gives you
+
+When something goes wrong with an agent, the question to ask first
+is *which component is at fault*. Because the failure-mode space is
+small, the answer is usually obvious within thirty seconds of
+reading the trace:
+
+- "The agent re-did work it already did last session" → S
+- "The agent kept calling a tool that doesn't exist" → T
+- "The agent stopped early for no clear reason" → likely C (context
+  anxiety) or E (a missing recovery arc)
+- "I can't reproduce what the agent did yesterday" → V
+- "The agent shelled out and ran something I didn't want" → L
+
+Each of those points to a different fix. None of them are model fixes.
+
+<KnowledgeCheck question="An agent successfully implements a feature, but the next session re-implements the same feature from scratch. Which component is failing?">
+  <Option>
+    E — the execution loop is stuck.
+  </Option>
+  <Option correct>
+    S — state that should have survived the session boundary didn't.
+  </Option>
+  <Option>
+    T — the tool registry is rejecting valid calls.
+  </Option>
+  <Explanation>
+    The execution loop ran fine — the feature got implemented. The
+    tool registry was fine — calls succeeded. The problem is that
+    the *fact of completion* didn't survive into the next session.
+    That's S: an externalized state artifact (progress file,
+    feature flag, git commit) that the next session reads on
+    startup. Without it the new agent has no way to know.
+  </Explanation>
+</KnowledgeCheck>

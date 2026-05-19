@@ -1,0 +1,170 @@
+---
+number: 9
+title: The generator–evaluator loop
+keyIdea: Self-evaluation is unreliable. Splitting the doer from the judge — and tuning the judge to be skeptical — is the first structural lever you reach for on subjective work.
+minutes: 6
+---
+
+If you've used an agent on anything subjective — a frontend design,
+a copy edit, a research summary — you've seen the failure mode that
+motivates this lesson. From Anthropic's engineering writeup:
+
+> "Agents tend to respond by confidently praising the work — even
+> when, to a human observer, the quality is obviously mediocre."
+> (source: 2603.harness-design-for-long-running-apps.md)
+
+Asking the same agent to do the work *and* judge it is a kind
+of structural conflict of interest. The fix is structural: split
+the doer from the judge. Inspired by GANs, this is the
+**generator–evaluator** pattern.
+
+<GanLoop className="my-6 w-full" />
+
+## What changes with separation
+
+Splitting alone doesn't eliminate LLM leniency. The evaluator is
+still a model, still inclined to be generous toward LLM-generated
+outputs. But once external feedback exists, two things become true
+that weren't before:
+
+1. The generator has something *concrete* to iterate against — not
+   its own self-assessment but findings from outside.
+2. The evaluator's prompt is a much smaller, more tractable
+   optimization surface than the generator's. You can spend
+   engineering effort tuning the evaluator to be skeptical.
+
+> "Tuning a standalone evaluator to be skeptical turns out to be
+> far more tractable than making a generator critical of its own
+> work." (source: 2603.harness-design-for-long-running-apps.md)
+
+## The two-domain test
+
+Anthropic's labs work validated the pattern first on a *subjective*
+task (frontend design) before scaling to a *verifiable* one
+(full-stack apps). The reasoning: an evaluator that can grade taste
+must encode design principles explicitly, and explicit principles
+carry cleanly over to code review.
+
+### Frontend design (subjective)
+
+- Four rubric criteria shared by *both* generator and evaluator:
+  design quality, originality, craft, functionality.
+- Design and originality weighted heavily to penalize "AI slop"
+  (purple gradients on white cards, library defaults).
+- Evaluator given a real browser through Playwright MCP — it
+  navigates, screenshots, and *studies* the live page before grading.
+- Few-shot calibration of the evaluator against the author's
+  preferences.
+- 5–15 iterations per run; up to 4 hours wall-clock.
+
+A surprise finding: rubric *wording* steers aesthetics. The phrase
+"the best designs are museum quality" pushed outputs toward a
+recognizable visual convergence. The rubric is latent style direction
+— a feature when you want a particular style, a bug when you didn't
+realize the rubric was specifying one.
+
+### Full-stack coding (verifiable)
+
+Three-agent architecture: planner → generator → evaluator. The
+evaluator:
+
+- uses Playwright to actually click through the running app
+- exercises API endpoints
+- inspects database state
+- grades each sprint against a contract negotiated up-front (more
+  on contracts below)
+- emits hard-threshold failures with specific code-pointing findings,
+  e.g. *"fillRectangle function exists but isn't triggered properly
+  on mouseUp at LevelEditor.tsx:892."*
+
+Each criterion has a hard threshold; missing any one fails the
+sprint, sending detailed feedback back to the generator.
+
+## Sprint contracts
+
+The single most important supporting pattern. A **sprint contract**
+is a small file written *before* code is generated. It says what
+"done" looks like, in terms both the generator and evaluator
+understand:
+
+```text
+sprint: add toggle-completed checkbox
+
+acceptance criteria:
+  - Checkbox is rendered next to each todo item.
+  - Clicking it toggles the item's `completed` field.
+  - Toggled items appear visually struck-through.
+  - State persists across page reload (localStorage or API).
+
+evaluator must verify:
+  - Click each existing todo item; observe checkbox state change.
+  - Reload the page; observe persistence.
+  - Inspect localStorage entry to confirm shape.
+```
+
+The contract is shared input to both. The generator builds against
+it, the evaluator scores against it. When the generator and
+evaluator disagree, the contract is the tiebreaker.
+
+## When the evaluator is worth its cost
+
+This is one of the lessons Anthropic's follow-up makes most clearly:
+
+> "The evaluator is not a fixed yes-or-no decision. It is worth the
+> cost when the task sits beyond what the current model does
+> reliably solo." (source: 2603.harness-design-for-long-running-apps.md)
+
+On Sonnet 4.5 the boundary of solo capability was close; the
+evaluator caught meaningful issues. On Opus 4.6 the boundary moved
+outward; for tasks within the model's solo capability, the
+evaluator became pure overhead.
+
+Re-evaluating with each model release isn't optional. Every
+component in a harness encodes an assumption about what the model
+can't do alone, and those assumptions go stale.
+
+## Pitfalls
+
+A few that bite teams that adopt this pattern:
+
+**Evaluator drift.** Without few-shot calibration and a periodic
+spot-check against human judgment, the evaluator's scores drift
+over iterations. Especially severe on subjective tasks.
+
+**Self-praise persists even after separation.** Untuned, the
+evaluator may identify real issues and then *talk itself into
+deciding they weren't a big deal*. Several rounds of "read its logs,
+find divergences from your judgment, update its prompt" are
+required.
+
+**Verifier ≠ benchmark alignment.** Local pass on the evaluator's
+criteria can still diverge from the *true* acceptance object. The
+NLAH paper shows this empirically on SWE-bench: adding structure
+can shift local success signals away from the actual benchmark
+verdict. Anchor the evaluator to path-addressable artifacts the
+real benchmark also reads.
+
+**Rubric wording leaks into outputs.** The "museum quality" effect.
+If a phrase reliably moves the evaluator's judgment, it will
+eventually move the generator's outputs in the same direction.
+
+<KnowledgeCheck question="Why does splitting generator from evaluator help, given that the evaluator is still an LLM?">
+  <Option>
+    Because LLMs are perfect judges of other LLMs' work.
+  </Option>
+  <Option correct>
+    Because the generator gets concrete external feedback to iterate against, and the evaluator's prompt is a much smaller, more tractable optimization surface.
+  </Option>
+  <Option>
+    Because two models always agree, so disagreement reveals errors.
+  </Option>
+  <Explanation>
+    The evaluator is still an LLM and still has biases (option 1 is
+    wrong). Two models often agree wrongly, so disagreement isn't a
+    reliable error signal (option 3 is wrong). The real value is
+    structural: the generator now has external feedback to iterate
+    on, and you can invest engineering effort in tuning the evaluator
+    to be skeptical — a much smaller surface than tuning the
+    generator.
+  </Explanation>
+</KnowledgeCheck>

@@ -1,0 +1,114 @@
+---
+number: 2
+title: "The six components: E, T, C, S, L, V"
+keyIdea: "Every harness implements six runtime functions: Execution loop, Tool registry, Context manager, State store, Lifecycle hooks, and Evaluation interface. Six failure modes map one-to-one."
+minutes: 7
+---
+
+The cleanest formal definition of a harness comes from Meng et al.'s
+2026 survey of 22 production agent systems. They define a harness as
+the six-tuple:
+
+```text
+H = (E, T, C, S, L, V)
+```
+
+Each letter is a runtime function. Each one corresponds to a specific
+failure mode you've probably hit if you've used any agent for more
+than ten minutes.
+
+<HarnessAnatomy className="my-6 w-full" />
+
+## What each one does
+
+<SixComponentExplorer />
+
+## How to read the six
+
+Two of these are necessary by definition: a system without **E** has
+no multi-step execution, and a system without **T** can't touch the
+world. The survey calls these "any system that qualifies as a
+harness."
+
+Two of them are heavily implemented across the field: **C** (context
+managers got a whole engineering era named after them in 2025) and
+**S** (every production system has *some* notion of what survives a
+turn, even if just "the conversation history").
+
+The interesting part is the other two. **L** and **V** — lifecycle
+hooks and the evaluation interface — are the most systematically
+*under-implemented* components across the surveyed 22 systems.
+(source: 2604.agent-harnesses-survey.pdf §2.2)
+
+That gap matters because:
+
+- **Without L**, an agent can send emails or run shell commands and
+  no central code records that it happened. Audit, policy, and
+  rate-limiting get bolted on per-tool instead of once.
+- **Without V**, you can read the logs but you can't *score* them.
+  Comparing two harnesses means re-running both. Automated harness
+  optimization (lesson 12) is impossible.
+
+## The failure modes map one-to-one
+
+This is the most useful frame in the whole topic. Every component
+has a principal failure mode. If you can name which mode you're
+seeing, you know which component is at fault.
+
+<FailureModesGrid className="my-6 w-full" />
+
+We'll spend a whole lesson on these in lesson 8, with the actual
+fixes. For now, what matters is the structure: when something goes
+wrong with an agent, the question to ask first is *which of the six*.
+
+## What this is not
+
+The six-tuple is a description of *runtime functions*, not a software
+architecture. A real harness might implement E and T as one
+`while` loop with a switch statement, or it might split them into
+three separate processes communicating over IPC. The components are
+roles, not files.
+
+Two other formalizations cut the same space differently:
+
+- **AHE's seven NexAU components** (system prompt, tool description,
+  tool implementation, middleware, skill, sub-agent config, long-term
+  memory) are an *implementation* taxonomy at finer granularity.
+  Tools/middleware ≈ T/E, skills + memory ≈ C/S, sub-agent config
+  extends E. (source: 2604.auto-evolution-coding-agents.pdf)
+- **Natural-language harnesses** describe contracts, roles, stages,
+  adapters, state semantics, and a failure taxonomy. Closer to a
+  spec language than to a component taxonomy. We'll meet this in
+  lesson 11.
+
+The six-tuple is the most parsimonious frame, which is why we use it
+throughout this topic.
+
+<Callout type="note" title="Cross-component coupling">
+The components aren't independent. The survey calls out three coupling
+patterns most systems get wrong: C ↔ L (longer context retention helps
+performance *and* prolongs adversarial payload persistence), V ↔ L
+(both intercept the execution stream — most systems implement them
+twice), and S ↔ T (tools that mutate persistent state are
+simultaneously tool calls and state mutations, and few systems have a
+clean spec for that). Optimizing C in isolation usually makes L worse.
+</Callout>
+
+<KnowledgeCheck question="Which two components are systematically under-implemented across surveyed harnesses?">
+  <Option>
+    E and T — most systems lack a real execution loop or tool registry.
+  </Option>
+  <Option correct>
+    L and V — lifecycle hooks and the evaluation interface.
+  </Option>
+  <Option>
+    C and S — context management and state persistence.
+  </Option>
+  <Explanation>
+    E and T are necessary by definition; if those are missing the
+    system isn't a harness. C and S are heavily implemented. The
+    consistent gap across 22 surveyed systems is L (lifecycle hooks)
+    and V (a standardized evaluation interface). Filling those is
+    where most of the practical engineering wins are.
+  </Explanation>
+</KnowledgeCheck>

@@ -1,0 +1,146 @@
+---
+number: 6
+title: State stores and lifecycle hooks
+keyIdea: State (S) is what survives turns. Lifecycle hooks (L) intercept every call for auth, logging, and policy. Both are systematically underbuilt.
+minutes: 5
+---
+
+If you remember one thing from lesson 2 it's this: across the 22
+production systems Meng et al. surveyed, the two most consistently
+under-implemented components are **L** (lifecycle hooks) and **V**
+(evaluation interface).
+
+This lesson is about L and S together because they're two halves of
+"things that happen *around* a tool call."
+
+## State (S) — what survives the turn
+
+State is the harness's memory. Three rules from the source material
+(source: 2603.natural-language-harnesses.pdf) for state that's worth
+having:
+
+1. **Externalized.** State lives in artifacts, not in the model's
+   transient context. A file on disk, a row in a database, a git
+   commit, a structured memory entry. The conversation is *not*
+   state.
+2. **Path-addressable.** Later stages can reopen the exact object
+   by path or ID. No "the model needs to remember to look in the
+   right place."
+3. **Compaction-stable.** State survives in-place compaction, agent
+   restart, and delegation to a sub-agent. Anything that lives only
+   in chat history is going to disappear.
+
+Put another way: if a piece of information matters enough that
+losing it would break the task, it should be in a file before the
+turn ends.
+
+<Callout type="note" title="The single most useful artifact">
+A `progress.txt` (or equivalent) file the agent appends to at the
+end of every session, with what was done and what's next. One line
+per session is enough. The cost is trivial; the benefit is enormous
+when a context reset or a model upgrade lands you in a fresh window
+tomorrow.
+</Callout>
+
+## Lifecycle hooks (L) — interception
+
+Lifecycle hooks are functions the harness calls at specific points
+in the loop. The two most useful are obvious:
+
+- **PreToolUse**: runs before any tool dispatch. Can refuse the
+  call, redact arguments, attach metadata.
+- **PostToolUse**: runs after dispatch. Can audit the result, emit
+  metrics, cache the response.
+
+Less obvious but equally useful:
+
+- **SessionStart / SessionEnd**: bracket a whole agent session.
+  Useful for setting up sandboxes, tearing down resources, taking
+  snapshots.
+- **PreModelCall / PostModelCall**: bracket the LLM invocation.
+  Useful for redacting secrets out of the prompt and for capturing
+  token counts.
+- **OnError**: catches tool errors and decides whether to retry,
+  abort, or surface them to the model.
+
+In Claude Code these are configured in `settings.json` and the
+harness invokes them at the right phases automatically.
+
+## Why hooks beat per-tool defenses
+
+Imagine you want to enforce: *no shell command may run without being
+audited*. You have three places to put that:
+
+1. In the `Bash` tool's implementation.
+2. In the prompt: "always log shell commands."
+3. In a `PreToolUse` hook that fires for any tool matching `Bash`.
+
+Option 1 works for `Bash` and stops working the moment someone adds
+another shell-shaped tool (`zsh`, `pwsh`, an MCP shell server). You
+have to remember to do the same thing in every implementation.
+
+Option 2 is a suggestion the model may or may not follow. Audits
+are exactly the case where you cannot trust a suggestion.
+
+Option 3 is the harness-level fix. One hook, configured once,
+applies to every shell-shaped tool the registry knows about. New
+tool added next month? The hook still runs. *You moved the
+guarantee from the prompt to the shell.*
+
+## What you actually do with hooks
+
+Some real patterns:
+
+- **Permissioning.** Pre-tool hook checks the call against a
+  policy. Refuses calls that touch protected paths.
+- **Secret redaction.** Pre-model hook scrubs API keys out of the
+  composed prompt before it leaves the harness.
+- **Audit log.** Post-tool hook emits a structured record to a
+  separate channel (not the conversation) so audit trails are
+  complete even when the trace gets summarized.
+- **Rate limiting.** Pre-tool hook tracks per-session call counts
+  and refuses once a budget is exhausted.
+- **Auto-formatting.** Post-tool hook on `Edit` runs `prettier` so
+  the agent's edits land in canonical form.
+- **Type-checking.** Post-tool hook on `Edit` runs `tsc --noEmit`
+  and surfaces errors back to the agent.
+
+Each of these is one small file in `settings.json` that does the
+work for *every* future tool the harness will ever dispatch.
+
+## Why both are underbuilt
+
+Two reasons. **State** gets reinvented per project — every team
+writes their own progress file format, their own memory layer,
+their own "what survives" convention. There's no de facto
+standard, so it doesn't accumulate across teams.
+
+**Hooks** are easy to skip when prototyping. The first version of a
+harness "just calls the tools" and the audit/redaction/policy work
+gets pushed to "later." The compounding consequence is that every
+team's harness has its own home-grown subset of L, with overlaps
+and gaps that aren't obvious.
+
+The survey's research-agenda recommendation is unambiguous:
+filling in V and L is where the next round of practical wins lives.
+(source: 2604.agent-harnesses-survey.pdf §8)
+
+<KnowledgeCheck question="Which of these is the right layer to enforce 'no shell command may run without an audit log entry'?">
+  <Option>
+    Inside each shell-shaped tool's implementation.
+  </Option>
+  <Option>
+    In the system prompt as a strong instruction to the model.
+  </Option>
+  <Option correct>
+    In a PreToolUse / PostToolUse hook on the lifecycle layer.
+  </Option>
+  <Explanation>
+    Implementation-level enforcement (option 1) means every new
+    shell-shaped tool needs the audit added by hand. Prompt-level
+    enforcement (option 2) is a suggestion the model may not
+    follow. The hook layer applies to *any* matching tool, present
+    or future, and runs even if the model "forgets." That's exactly
+    why L exists.
+  </Explanation>
+</KnowledgeCheck>

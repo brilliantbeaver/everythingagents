@@ -1,0 +1,142 @@
+---
+number: 4
+title: "Context: compaction, resets, and anxiety"
+keyIdea: Two ways past the context limit — summarize in place, or reset and hand off via files. Choice depends on the model and on what your handoff artifacts can carry.
+minutes: 7
+---
+
+Every agent task that lasts longer than a few minutes hits the same
+wall: the model has a context budget, and a real piece of work
+overflows it.
+
+The harness has two ways to deal with this. The choice between them
+is one of the most consequential in the whole system.
+
+<ContextCompaction className="my-6 w-full" />
+
+## The two strategies
+
+**Compaction** keeps the same agent running. The harness summarizes
+earlier conversation in place — turns 1-3 collapse into a `∑` block —
+and the same model continues with a shortened history. Continuity is
+preserved. The model knows it's the same agent, working on the same
+task, with a memory of what it did before, even if the memory is
+fuzzier.
+
+**Context reset** clears the window entirely. A fresh agent starts
+with no conversational memory of the previous one. The handoff lives
+on disk: a progress file, a feature list, a git history, an
+`init.sh` to bring up the dev server. The new agent reconstructs
+context from those artifacts.
+
+Each has a real cost.
+
+| | Compaction | Context reset |
+|---|---|---|
+| Same agent | yes | no |
+| History | summarized | discarded |
+| Continuity | preserved | reconstructed |
+| Context anxiety | persists | eliminated |
+| Cost per transition | lower | higher (orchestration, latency) |
+| Risk | important detail lost in summary | important detail lost from handoff |
+
+## Context anxiety
+
+This is the lever that makes the choice non-obvious. From Anthropic's
+engineering writeup (source: 2603.harness-design-for-long-running-apps.md):
+
+> "Some models also exhibit 'context anxiety,' in which they begin
+> wrapping up work prematurely as they approach what they believe is
+> their context limit."
+
+Compaction *preserves* this. Even after the summary, the same agent
+keeps cumulative awareness of how much has happened. It can panic and
+declare victory early. A reset gives the next agent a clean slate
+with no sense of how long this has been going on.
+
+This is one of those things that's hard to believe until you see it
+in your traces. The agent isn't stopping because it ran out of room;
+it's stopping because it *thinks* it's about to.
+
+<Callout type="note" title="Model-dependence">
+Sonnet 4.5 exhibited context anxiety strongly enough that compaction
+alone wasn't enough — context resets became essential. Opus 4.6
+largely removed the behavior; the GAN-inspired harness in the
+follow-up paper dropped resets and let the SDK's built-in compaction
+handle it. Every component in a harness encodes an assumption about
+what the model can't do on its own. Re-test those assumptions on every
+model release.
+</Callout>
+
+## When the handoff is the cost
+
+Choose resets and the handoff artifacts *become* the harness's main
+correctness surface. Whatever the next agent doesn't read on disk is
+gone forever.
+
+This is why the artifacts take a specific shape. Anthropic's
+long-running-agents harness uses four:
+
+| Artifact | Purpose |
+|---|---|
+| `feature_list.json` | Exhaustive list of features with `passes: false` until verified |
+| `claude-progress.txt` | Append-only narrative log of what each session did |
+| `init.sh` | Brings up the dev server with one command |
+| Initial git commit | Clean baseline; later sessions can `git revert` |
+
+JSON is used for the feature list because the model is empirically
+less likely to silently rewrite or delete entries from JSON than from
+Markdown. Strong-constraint > strong-suggestion when the artifact
+carries correctness.
+
+## A heuristic
+
+From the source material, a defensible default:
+
+- If your model exhibits context anxiety or strongly degrades near
+  its limit → **reset** with structured handoff.
+- If the model is robust at long context and you have a good context
+  manager → **compaction** is simpler.
+- Either way, **anything that needs to survive should be in files**,
+  not in the conversation. Compaction may eat conversational state;
+  a reset definitely will.
+
+The third bullet is the durable lesson. Even if you choose
+compaction today, *write the handoff artifacts anyway*. If you
+upgrade your model in six months and switch to resets, you'll already
+have the surface to do it.
+
+## What about retrieval?
+
+Retrieval is a different question. Compaction and resets are both
+about dealing with a context window that's already full. Retrieval is
+about what to put in it in the first place — pulling a few relevant
+files, docs, or memory entries instead of the whole repo.
+
+Retrieval is a C-component concern. Compaction and resets are also C,
+but they're *time*-shaped: they decide what to do when the window
+overflows. Retrieval is *space*-shaped: it decides what to load into
+the window each turn.
+
+A real harness does both.
+
+<KnowledgeCheck question="Why might a harness designer choose a context reset over in-place compaction?">
+  <Option>
+    Resets preserve more conversational continuity than compaction.
+  </Option>
+  <Option correct>
+    Resets give the new agent a clean slate, eliminating context anxiety; the cost is needing a sufficient on-disk handoff.
+  </Option>
+  <Option>
+    Resets are always cheaper because no summary needs to be generated.
+  </Option>
+  <Explanation>
+    Compaction preserves continuity (option 1), and resets are
+    typically *more* expensive per transition, not less (option 3).
+    The reason to choose resets is the clean slate: a fresh agent has
+    no cumulative awareness of how long this has been going on, so
+    context anxiety cannot persist. The trade is that whatever the
+    new agent doesn't read on disk is gone forever, which makes the
+    handoff artifacts the main correctness surface.
+  </Explanation>
+</KnowledgeCheck>

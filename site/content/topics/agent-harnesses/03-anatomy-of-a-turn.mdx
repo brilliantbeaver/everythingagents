@@ -1,0 +1,126 @@
+---
+number: 3
+title: Anatomy of one harness turn
+keyIdea: Observe → think → act → commit. The deterministic stages around the model are where almost all harness design happens.
+minutes: 6
+---
+
+A harness turn is the unit of execution. You can think of it as one
+revolution of a wheel: read state, ask the model, do the thing,
+record what happened, repeat.
+
+<TurnLoop className="my-6 w-full" />
+
+The picture matters because it says where the engineering happens.
+Three of the four phases are deterministic — code that *you* write,
+or that the harness vendor wrote on your behalf. Only `think` is the
+LLM. Almost every interesting harness design choice is a choice
+about what runs in the deterministic stages.
+
+## Step it through
+
+Below is one real Claude Code turn — `fix the failing test in
+auth_service_test.py` — broken into six frames. Click through them
+and watch which components are active at each phase.
+
+<TurnStepper />
+
+A few things worth noticing in that sequence.
+
+**The model only acts once per turn**, in the `think` phase. It picks
+a tool. Everything else is the harness around the call.
+
+**Validation happens before dispatch**, not after. The tool registry
+checks that `Read` was called with a valid `file_path` *before* the
+implementation runs. A typo in the model's call gets rejected; the
+implementation never sees a bad input.
+
+**Hooks run twice**, once before the tool and once after. The pre-call
+hook can refuse the call (permission denied, quota exceeded). The
+post-call hook is for audit and metrics.
+
+**The trajectory entry is structured.** It's not a log line. It's a
+typed record with `tool`, `args`, `result`, `latency`, `ok` —
+something downstream tooling can read directly. This is the V
+component doing real work.
+
+## Why the deterministic shell matters
+
+Here is the version of this picture you'll see again and again:
+*deterministic shell · soft model core · deterministic shell.*
+
+The shell is where you put guarantees. "This tool is allowed only
+when verified is true." "This argument must match this regex." "This
+output must be parseable as JSON." None of those are reliable when
+expressed as a sentence in a prompt; all of them are trivially
+reliable when expressed as code in the harness.
+
+The soft core is where you put judgment. *Should* the agent run the
+tests now or write more code first? Which file is most likely to
+contain the bug? Those are model-shaped questions and the model
+should answer them.
+
+<KeyIdea>
+The split between deterministic shell and soft model core is the
+single most useful pattern in harness design. Almost every win in
+this topic is some variation of "move this from the prompt to the
+shell."
+</KeyIdea>
+
+## The execution loop as a state machine
+
+If you formalize the loop, it's a labeled transition system:
+
+```text
+Q = { idle, observing, invoking-model, dispatching-tool,
+      awaiting-tool-result, committing-state, terminated }
+Σ = model tokens, tool invocations, tool results,
+    human approvals, errors
+δ : Q × Σ → Q
+```
+
+Three properties only become expressible once you write it down this
+way (source: 2604.agent-harnesses-survey.pdf §2.2):
+
+- **Safety**: the system never enters a state from which termination
+  is unreachable. No runaway loops.
+- **Liveness**: from every reachable non-terminal state, a terminal
+  state is reachable. The loop can always finish.
+- **Determinism**: the transition function is a *function*, not a
+  relation. Environment non-determinism is isolated at tool boundaries.
+
+Most agent loops in the wild violate at least one of these. ReAct's
+δ is undefined on error inputs — there's no "what does the loop do
+if a tool throws an exception" arc — so its safety property is
+violated. AutoGPT does have an explicit error recovery arc; it
+qualifies.
+
+This isn't pedantry. *Execution runaway* — the failure mode for E
+— is exactly what you get when safety is violated. Knowing the
+property has a name helps you find the bug.
+
+## What's coming
+
+Lesson 4 zooms into the **C** stage of a turn: how context gets
+managed when the conversation outgrows the window. Lesson 5 zooms
+into **T**: what makes the tool registry trustworthy. From there
+you'll have the vocabulary to read any harness paper.
+
+<KnowledgeCheck question="In the four-phase turn loop, which phase is the only one driven by the LLM?">
+  <Option>
+    observe — the model reads the state.
+  </Option>
+  <Option correct>
+    think — the model picks a tool or composes a reply.
+  </Option>
+  <Option>
+    act — the model dispatches the tool.
+  </Option>
+  <Explanation>
+    Observe and commit are deterministic harness code; act is a
+    deterministic dispatch (the registry validates and runs). Only
+    `think` involves the model itself, and even then the model is
+    constrained to emit a tool call or a reply — both shaped by the
+    schemas the registry exposes.
+  </Explanation>
+</KnowledgeCheck>

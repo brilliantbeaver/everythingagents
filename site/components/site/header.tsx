@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { Show, UserButton, SignInButton } from "@clerk/nextjs";
 import { ThemeToggle } from "./theme-toggle";
 import { NotifyCTA } from "./notify-cta";
 import { Wordmark } from "./brand";
 import { SearchTrigger } from "./search-trigger";
+import { TopicsNav } from "./topics-nav";
 
 export function Header() {
   return (
@@ -12,22 +12,17 @@ export function Header() {
         <Wordmark href="/" />
 
         <nav className="ml-2 hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
-          <Link
-            href="/topics"
-            className="hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
-          >
-            Topics
-          </Link>
-          <Link
-            href="/glossary"
-            className="hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
-          >
-            Glossary
-          </Link>
+          <TopicsNav />
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        {/* Search bar grows to fill the middle of the header on desktop;
+            on small screens it falls back to a tappable affordance after
+            the Topics nav. */}
+        <div className="hidden flex-1 justify-center px-4 sm:flex">
           <SearchTrigger />
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
           <Show when="signed-out">
             <NotifyCTA />

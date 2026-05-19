@@ -46,6 +46,19 @@ const nextConfig = {
         destination: "/topics/guided-determinism/:lesson",
         permanent: true,
       },
+      // Slug rename: agent-coding-harnesses → agent-harnesses (the topic
+      // is about harnesses in general; coding agents are just the running
+      // example).
+      {
+        source: "/topics/agent-coding-harnesses",
+        destination: "/topics/agent-harnesses",
+        permanent: true,
+      },
+      {
+        source: "/topics/agent-coding-harnesses/:lesson",
+        destination: "/topics/agent-harnesses/:lesson",
+        permanent: true,
+      },
     ];
   },
 };
