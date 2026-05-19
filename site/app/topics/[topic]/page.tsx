@@ -54,14 +54,14 @@ export default async function TopicPage({ params }: { params: Params }) {
     <div className="py-8 sm:py-10 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
       <aside className="ui-sans hidden lg:sticky lg:top-20 lg:block lg:self-start">
         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          On this topic
+          {t.shortTitle}
         </p>
-        <ol className="mt-2 space-y-1 text-sm">
+        <ol className="mt-2 space-y-0.5 text-sm">
           {t.lessons.map((l) => (
             <li key={l.slug}>
               <Link
                 href={`/topics/${t.slug}/${l.slug}`}
-                className="flex items-baseline gap-2 rounded px-2 py-1 text-foreground/80 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex items-baseline gap-2 rounded px-2 py-1 text-foreground/70 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="w-5 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
                   {l.number}.
@@ -85,24 +85,20 @@ export default async function TopicPage({ params }: { params: Params }) {
         <h1 className="mt-3 font-serif text-2xl leading-tight tracking-tight sm:text-3xl">
           {t.title}
         </h1>
-        <p className="ui-sans mt-3 max-w-prose text-sm text-foreground/85">{t.oneLine}</p>
+        <p className="ui-sans mt-3 max-w-prose text-base text-foreground/85">{t.oneLine}</p>
 
-        <dl className="ui-sans mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-          <div className="flex items-baseline gap-1.5">
-            <dt className="uppercase tracking-wide">Lessons</dt>
-            <dd className="text-foreground/80 tabular-nums">{t.lessons.length}</dd>
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <dt className="uppercase tracking-wide">Time</dt>
-            <dd className="text-foreground/80 tabular-nums">{topicMinutes(t)} min</dd>
-          </div>
-          {t.prereqs && (
-            <div className="flex items-baseline gap-1.5">
-              <dt className="uppercase tracking-wide">Prereqs</dt>
-              <dd className="text-foreground/80">{t.prereqs}</dd>
-            </div>
-          )}
-        </dl>
+        <p
+          className="ui-sans mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
+          aria-label="Topic overview"
+        >
+          <span className="tabular-nums">
+            <span className="font-medium text-foreground/80">{t.lessons.length}</span> lessons
+          </span>
+          <span aria-hidden className="text-muted-foreground/60">·</span>
+          <span className="tabular-nums">
+            <span className="font-medium text-foreground/80">{topicMinutes(t)}</span> min read
+          </span>
+        </p>
 
         {t.slug === "guided-determinism" && (
           <section className="mt-6 max-w-3xl">
@@ -178,6 +174,21 @@ export default async function TopicPage({ params }: { params: Params }) {
           </section>
         )}
 
+        {t.prereqs && (
+          <aside
+            aria-labelledby="before-you-start"
+            className="ui-sans mt-8 max-w-prose border-l-2 border-accent/40 pl-4"
+          >
+            <p
+              id="before-you-start"
+              className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+            >
+              Before you start
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-foreground/85">{t.prereqs}</p>
+          </aside>
+        )}
+
         <section className="mt-8 max-w-prose">
           <h2 className="ui-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Lessons
@@ -207,16 +218,20 @@ export default async function TopicPage({ params }: { params: Params }) {
           </ol>
         </section>
 
-        <p className="ui-sans mt-10 max-w-prose text-xs text-muted-foreground">
-          The first lesson —{" "}
-          <Link
-            href={`/topics/${t.slug}/${t.lessons[0]?.slug}`}
-            className="text-accent hover:underline"
-          >
-            {t.lessons[0]?.title}
-          </Link>{" "}
-          — is the entry point. Everything else builds on it.
-        </p>
+        {t.lessons[0] && (
+          <div className="ui-sans mt-10 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Link
+              href={`/topics/${t.slug}/${t.lessons[0].slug}`}
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Start with lesson 1
+              <span aria-hidden>→</span>
+            </Link>
+            <span className="text-xs text-muted-foreground">
+              {t.lessons[0].title} · {t.lessons[0].minutes} min
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
