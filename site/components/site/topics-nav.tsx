@@ -6,38 +6,25 @@ import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { topics, topicMinutes } from "@/lib/registry";
 
+const HOVER_OPEN_DELAY_MS = 120;
+
 export function TopicsNav() {
   const [open, setOpen] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const triggerRef = useRef<HTMLAnchorElement>(null);
 
   const available = topics.filter((t) => t.status === "available");
   const upcoming = topics.filter((t) => t.status === "upcoming");
 
-  function clearTimers() {
+  function cancelOpenTimer() {
     if (openTimer.current) {
       clearTimeout(openTimer.current);
       openTimer.current = null;
     }
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  }
-
-  function scheduleOpen() {
-    clearTimers();
-    openTimer.current = setTimeout(() => setOpen(true), 80);
-  }
-
-  function scheduleClose() {
-    clearTimers();
-    closeTimer.current = setTimeout(() => setOpen(false), 200);
   }
 
   useEffect(() => {
-    return () => clearTimers();
+    return () => cancelOpenTimer();
   }, []);
 
   return (
@@ -46,21 +33,19 @@ export function TopicsNav() {
         <Link
           ref={triggerRef}
           href="/topics"
-          onMouseEnter={scheduleOpen}
-          onMouseLeave={scheduleClose}
-          onFocus={() => {
-            clearTimers();
-            setOpen(true);
+          onPointerEnter={(e) => {
+            if (e.pointerType !== "mouse") return;
+            cancelOpenTimer();
+            openTimer.current = setTimeout(() => setOpen(true), HOVER_OPEN_DELAY_MS);
           }}
-          onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-              scheduleClose();
-            }
+          onPointerLeave={(e) => {
+            if (e.pointerType !== "mouse") return;
+            cancelOpenTimer();
           }}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault();
-              clearTimers();
+              cancelOpenTimer();
               setOpen(true);
               requestAnimationFrame(() => {
                 const first = document.querySelector<HTMLAnchorElement>(
@@ -68,9 +53,6 @@ export function TopicsNav() {
                 );
                 first?.focus();
               });
-            }
-            if (e.key === "Escape") {
-              setOpen(false);
             }
           }}
           aria-haspopup="menu"
@@ -90,15 +72,18 @@ export function TopicsNav() {
       <Popover.Portal>
         <Popover.Content
           align="start"
-          sideOffset={10}
-          onMouseEnter={clearTimers}
-          onMouseLeave={scheduleClose}
+          sideOffset={4}
+          collisionPadding={8}
+          onPointerLeave={(e) => {
+            if (e.pointerType !== "mouse") return;
+            setOpen(false);
+          }}
           onEscapeKeyDown={() => {
             setOpen(false);
             triggerRef.current?.focus();
           }}
           data-topics-menu
-          className="z-50 w-[min(560px,calc(100vw-2rem))] rounded-lg border border-border bg-background shadow-lg ui-sans data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none"
+          className="z-50 w-[min(560px,calc(100vw-2rem))] rounded-lg border border-border bg-background shadow-lg ui-sans data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100 motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none"
           role="menu"
           aria-label="Topics"
         >
