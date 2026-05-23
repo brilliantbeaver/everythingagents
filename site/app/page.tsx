@@ -11,11 +11,13 @@ export default function Home() {
     <div className="py-10 sm:py-14">
       <section className="max-w-prose">
         <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl">
-          Tutorials for building agents.
+          Tutorials for building reliable agents.
         </h1>
         <p className="ui-sans mt-3 text-sm text-muted-foreground">
-          Real code, real bugs, real fixes. Starts with Agentforce and grows
-          from there. Free to read.
+          Real code, real bugs, real fixes. An agent is an LLM that picks its
+          own next step; these tutorials are about making that pick predictable.
+          Starts with Agentforce, Salesforce's agent platform, and grows from
+          there. Free to read.
         </p>
       </section>
 
@@ -25,9 +27,10 @@ export default function Home() {
         </p>
         <p className="ui-sans mt-2 text-sm text-foreground/85">
           Most agent systems sit somewhere between a chatbot that decides
-          everything and a flow that decides nothing. The tutorials here
-          live in that middle zone, where guided determinism keeps things
-          reliable without going rigid.
+          everything and a scripted flow that decides nothing. The tutorials
+          here live in that middle zone. The shorthand for it is guided
+          determinism: let the model choose, but constrain what it can choose
+          from. Reliable without going rigid.
         </p>
         <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
           <SpectrumIllustration className="w-full" />
@@ -96,7 +99,7 @@ export default function Home() {
             ))}
           </ul>
           <p className="ui-sans mt-4 text-xs text-muted-foreground">
-            Sign up in the header to be notified when these go live.
+            Sign up in the header to get a note when these go live.
           </p>
         </section>
       )}

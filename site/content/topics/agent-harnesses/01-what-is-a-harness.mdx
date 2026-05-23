@@ -7,8 +7,8 @@ minutes: 5
 
 When you use Claude Code, three things are working together.
 
-There's the **model** — the thing that produces tokens. There's the
-**prompt** — the text you typed plus whatever the system loaded around
+There's the **model**, the thing that produces tokens. There's the
+**prompt**: the text you typed plus whatever the system loaded around
 it. And there's something less talked about: the **harness**, the code
 that decides what gets shown to the model, what tools it can call, and
 what survives when the conversation gets too long.
@@ -41,7 +41,7 @@ policies for *all* of:
 - who is allowed to do what, and what gets logged
 - how the trajectory gets captured for later analysis
 
-The next lesson gives you the names — `E, T, C, S, L, V` — and shows
+The next lesson gives you the names (`E, T, C, S, L, V`) and shows
 how each one maps to a specific failure mode you've probably already hit.
 
 ## Why this matters now
@@ -68,7 +68,7 @@ be searched and evolved automatically. We'll get to those in lesson 12.
 <Callout type="note" title="A useful frame">
 2022–2024 was prompt engineering. 2025 was context engineering. 2026 is
 harness engineering. Each era expands scope rather than replacing the
-prior one — modern harnesses still contain carefully crafted prompts —
+prior one (modern harnesses still contain carefully crafted prompts),
 but the binding constraint moved.
 </Callout>
 
@@ -78,7 +78,7 @@ By the end of this topic you will:
 
 - Know the six components every real harness implements, and the six
   failure modes they correspond to.
-- Be able to describe what happens inside one turn — the four phases
+- Be able to describe what happens inside one turn: the four phases
   and which deterministic stages run on each side of the model.
 - Understand context compaction versus context resets, and when each
   one is the right call.
@@ -94,7 +94,7 @@ and see what breaks.
 
 <KnowledgeCheck question="Which of these is closest to what 'harness' means in this topic?">
   <Option correct>
-    The runtime around the model — the code that decides what enters context, dispatches tools, persists state, and captures trajectories.
+    The runtime around the model: the code that decides what enters context, dispatches tools, persists state, and captures trajectories.
   </Option>
   <Option>
     The system prompt and all the few-shot examples sent to the model on each turn.

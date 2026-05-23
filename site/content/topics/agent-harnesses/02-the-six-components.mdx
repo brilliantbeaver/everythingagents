@@ -35,8 +35,8 @@ managers got a whole engineering era named after them in 2025) and
 **S** (every production system has *some* notion of what survives a
 turn, even if just "the conversation history").
 
-The interesting part is the other two. **L** and **V** — lifecycle
-hooks and the evaluation interface — are the most systematically
+The interesting part is the other two. **L** and **V**, lifecycle
+hooks and the evaluation interface, are the most systematically
 *under-implemented* components across the surveyed 22 systems.
 (source: 2604.agent-harnesses-survey.pdf §2.2)
 
@@ -88,21 +88,21 @@ throughout this topic.
 The components aren't independent. The survey calls out three coupling
 patterns most systems get wrong: C ↔ L (longer context retention helps
 performance *and* prolongs adversarial payload persistence), V ↔ L
-(both intercept the execution stream — most systems implement them
-twice), and S ↔ T (tools that mutate persistent state are
+(both intercept the execution stream, and most systems end up
+implementing them twice), and S ↔ T (tools that mutate persistent state are
 simultaneously tool calls and state mutations, and few systems have a
 clean spec for that). Optimizing C in isolation usually makes L worse.
 </Callout>
 
 <KnowledgeCheck question="Which two components are systematically under-implemented across surveyed harnesses?">
   <Option>
-    E and T — most systems lack a real execution loop or tool registry.
+    E and T: most systems lack a real execution loop or tool registry.
   </Option>
   <Option correct>
-    L and V — lifecycle hooks and the evaluation interface.
+    L and V: lifecycle hooks and the evaluation interface.
   </Option>
   <Option>
-    C and S — context management and state persistence.
+    C and S: context management and state persistence.
   </Option>
   <Explanation>
     E and T are necessary by definition; if those are missing the

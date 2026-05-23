@@ -16,7 +16,7 @@ export function TurnLoop({ className }: { className?: string }) {
       className={className}
       style={{ color: "oklch(var(--foreground))" }}
     >
-      <title id="tl-title">One harness turn — four phases</title>
+      <title id="tl-title">One harness turn: four phases</title>
       <desc id="tl-desc">
         A turn cycles through four phases. Observe reads state and composes
         the prompt. Think is the model phase, where it picks a tool or a

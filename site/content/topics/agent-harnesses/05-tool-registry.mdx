@@ -1,13 +1,13 @@
 ---
 number: 5
 title: The tool registry and what makes it trustworthy
-keyIdea: Tools are typed, validated, and gated. The registry is where hallucinated calls become impossible — or where they slip through.
+keyIdea: Tools are typed, validated, and gated. The registry is where hallucinated calls become impossible, or where they slip through.
 minutes: 5
 ---
 
 The tool registry is the harness component most people think of as
 "just the tools." It's actually the layer that decides whether a tool
-call is *real* — whether it has the right arguments, comes from an
+call is *real*: whether it has the right arguments, comes from an
 allowed source, can run in the current state, and gets logged after
 it runs.
 
@@ -36,8 +36,8 @@ verify that it actually is one. If the model writes
 registry rejects it before any code runs.
 
 <Callout type="pitfall" title="A common pattern that breaks this">
-Implementing a tool that accepts "anything" — `**kwargs`, free-form
-strings, or a JSON blob the implementation parses itself — gives the
+Implementing a tool that accepts "anything" (`**kwargs`, free-form
+strings, or a JSON blob the implementation parses itself) gives the
 model a place to hide bad calls. The registry can't validate what it
 can't see. Schemas should be as tight as the operation allows.
 </Callout>
@@ -51,7 +51,7 @@ A trustworthy registry runs at minimum these checks before dispatch:
    right type. No extras unless the schema allows them.
 3. **Permission.** Lifecycle hooks (lesson 6) run pre-call. They can
    refuse the call.
-4. **Availability.** The tool may be conditionally available — gated
+4. **Availability.** The tool may be conditionally available, gated
    on agent state, user permission, or environment. (See the
    `available when` pattern from the [guided-determinism
    topic](/topics/guided-determinism/03-the-mental-model).)
@@ -62,7 +62,7 @@ and the world is unchanged.
 
 ## Why this is where hallucinations get caught
 
-A "hallucinated tool call" is a call the model invented — wrong
+A "hallucinated tool call" is a call the model invented: wrong
 name, wrong args, or wrong shape. The honest claim is: a typed
 registry makes most hallucinations impossible to *execute*.
 
@@ -80,8 +80,8 @@ A subtle point: the *description* you give a tool steers the model's
 choice of when to call it. Identical implementations with different
 descriptions produce different agent behavior.
 
-The Pi Research result from lesson 1 — 6.7% to 68.3% on the same
-model and benchmark — was a tool *format* change. (source:
+The Pi Research result from lesson 1 (6.7% to 68.3% on the same
+model and benchmark) was a tool *format* change. (source:
 2604.agent-harnesses-survey.pdf, citing Bölük 2026) Same model. Same
 task. Different shape on the tool-call surface.
 
@@ -97,7 +97,7 @@ This is one of the easiest harness wins available to you:
 ## MCP and the multi-tool world
 
 Modern harnesses don't ship every tool inline. The Model Context
-Protocol (MCP) lets a harness load tools from external servers —
+Protocol (MCP) lets a harness load tools from external servers:
 a GitHub MCP, a database MCP, a browser MCP. From the registry's
 point of view they're identical: typed schemas, validated calls,
 hooked dispatch. The fact that the implementation lives in another
@@ -112,12 +112,12 @@ contract. Anything that wants to be a tool plugs into it.
 The same harness can hold all of these:
 
 ```text
-Read         — local file read,         in-process
-Bash         — shell, gated by hook,    in-process
-Edit         — local file edit,         in-process
-github.pr    — GitHub PR ops,           via MCP
-db.query     — read-only SQL,           via MCP, allowlisted
-playwright.click — browser action,      via MCP
+Read              local file read,         in-process
+Bash              shell, gated by hook,    in-process
+Edit              local file edit,         in-process
+github.pr         GitHub PR ops,           via MCP
+db.query          read-only SQL,           via MCP, allowlisted
+playwright.click  browser action,          via MCP
 ```
 
 Each one has a typed schema. Each one runs through the same registry.

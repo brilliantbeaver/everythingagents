@@ -33,8 +33,8 @@ The outer loop is deliberately minimal:
 1. Initialize a population of seed harnesses; create filesystem D for logs.
 2. Evaluate each seed; write (code, scores, traces) into D.
 3. For N iterations:
-     a. Proposer queries D — typical iteration reads 82 files,
-        references 20+ prior candidates.
+     a. Proposer queries D (typical iteration reads 82 files,
+        references 20+ prior candidates).
      b. Proposer proposes k new harnesses.
      c. Validate interface, evaluate, append results to D.
 4. Return the Pareto frontier on a held-out test set.
@@ -55,8 +55,8 @@ optimizer the actual execution histories, not condensed digests.
 |---|---|
 | Online text classification | +7.7 pts over ACE *with 4× fewer context tokens* |
 | Math reasoning (IMO-level) | +4.7 pts average over no-retrieval, across five held-out models |
-| TerminalBench-2 (Opus 4.6) | 76.4% — #2 on the leaderboard |
-| TerminalBench-2 (Haiku 4.5) | 37.6% — **#1**, beating Goose by 2.1 pts |
+| TerminalBench-2 (Opus 4.6) | 76.4%, #2 on the leaderboard |
+| TerminalBench-2 (Haiku 4.5) | 37.6%, **#1**, beating Goose by 2.1 pts |
 
 The classification result is interesting because the discovered
 harness uses *fewer* tokens than the baseline. The optimizer found
@@ -90,8 +90,8 @@ Three observability pillars:
    inferred root cause, predicted fixes, predicted at-risk
    regressions. Next round verifies or falsifies.
 
-Ten iterations on TerminalBench 2 lift pass@1 from **69.7% to 77.0%**
-— beating Codex (71.9), ACE (68.9), and TF-GRPO (72.3). The frozen
+Ten iterations on TerminalBench 2 lift pass@1 from **69.7% to 77.0%**,
+beating Codex (71.9), ACE (68.9), and TF-GRPO (72.3). The frozen
 harness *transfers* to SWE-bench-verified and to three different
 model families with +5.1 to +10.1 pp gains.
 
@@ -103,7 +103,7 @@ Both papers converge on the same lesson from different sides:
 |---|---|
 | Three conditions tested: scores-only (34.6), scores+summary (34.9), full traces (50.0) | Same Evolve Agent fails on raw unstructured traces, succeeds on structured corpus |
 | Compression severs causal links | "The bottleneck was input shape, not agent intelligence" |
-| Code-space search regularizes — coding models propose coherent algorithms | Factual harness structure transfers; system-prompt-only changes regress |
+| Code-space search regularizes; coding models propose coherent algorithms | Factual harness structure transfers; system-prompt-only changes regress |
 
 The shared lesson:
 
@@ -117,8 +117,8 @@ intelligence.
 
 This is also why V matters (lesson 7). A harness without a real
 evaluation interface can't be optimized automatically. Whatever's
-downstream — search, evolution, or just a human reviewer — needs
-something they can navigate.
+downstream (search, evolution, or just a human reviewer) needs
+something it can navigate.
 
 ## What to take from this
 
@@ -160,7 +160,7 @@ evolution. It's also why this topic spends so little time on
 
 <KnowledgeCheck question="Both Meta-Harness and AHE converge on a finding about what to feed the optimizer. What is it?">
   <Option>
-    A short, well-summarized digest of prior runs is best — keeps the optimizer's context clean.
+    A short, well-summarized digest of prior runs is best; keeps the optimizer's context clean.
   </Option>
   <Option correct>
     Raw traces (or a layered, drill-downable corpus) beat compressed summaries because compression severs causal links between earlier decisions and later failures.

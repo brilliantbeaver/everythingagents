@@ -13,7 +13,7 @@ under-implemented components are **L** (lifecycle hooks) and **V**
 This lesson is about L and S together because they're two halves of
 "things that happen *around* a tool call."
 
-## State (S) — what survives the turn
+## State (S): what survives the turn
 
 State is the harness's memory. Three rules from the source material
 (source: 2603.natural-language-harnesses.pdf) for state that's worth
@@ -42,7 +42,7 @@ when a context reset or a model upgrade lands you in a fresh window
 tomorrow.
 </Callout>
 
-## Lifecycle hooks (L) — interception
+## Lifecycle hooks (L): interception
 
 Lifecycle hooks are functions the harness calls at specific points
 in the loop. The two most useful are obvious:
@@ -110,7 +110,7 @@ work for *every* future tool the harness will ever dispatch.
 
 ## Why both are underbuilt
 
-Two reasons. **State** gets reinvented per project — every team
+Two reasons. **State** gets reinvented per project. Every team
 writes their own progress file format, their own memory layer,
 their own "what survives" convention. There's no de facto
 standard, so it doesn't accumulate across teams.

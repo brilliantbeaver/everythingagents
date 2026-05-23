@@ -14,8 +14,8 @@ export default function NotFound() {
         That page doesn't exist.
       </h1>
       <p className="ui-sans mt-3 text-sm text-muted-foreground">
-        The link may be stale, or the topic may have been renamed. The
-        most useful jumps:
+        The link may be stale, or the topic may have been renamed. A few
+        useful jumps:
       </p>
       <ul className="ui-sans mt-6 space-y-2 text-sm">
         <li>

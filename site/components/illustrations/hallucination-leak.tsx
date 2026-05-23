@@ -27,7 +27,7 @@ export function HallucinationLeak({ className }: { className?: string }) {
       <line x1="210" y1="160" x2="282" y2="160" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" opacity="0.7" />
       <polygon points="280,155 290,160 280,165" fill="currentColor" opacity="0.7" />
 
-      {/* Planner substitution (the seam) — shows truth crossed out, substitution highlighted */}
+      {/* Planner substitution (the seam), shows truth crossed out, substitution highlighted */}
       <g transform="translate(290, 90)">
         <rect width="220" height="140" rx="3" fill="none" stroke="oklch(var(--accent))" strokeWidth="1.75" />
         <text x="110" y="22" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="11" fontWeight="600" fill="oklch(var(--accent))" textAnchor="middle" letterSpacing="0.05em">PLANNER SUBSTITUTES</text>
@@ -56,7 +56,7 @@ export function HallucinationLeak({ className }: { className?: string }) {
         <text x="400" y="284" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10" fill="currentColor" opacity="0.55" textAnchor="start">(alice was verified earlier in the chat)</text>
       </g>
 
-      {/* Variables sink — what set clauses store */}
+      {/* Variables sink, what set clauses store */}
       <g transform="translate(540, 110)">
         <rect width="150" height="100" rx="3" fill="oklch(var(--muted))" stroke="currentColor" strokeWidth="1.5" />
         <text x="75" y="22" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="11" fontWeight="600" fill="currentColor" textAnchor="middle" letterSpacing="0.05em" opacity="0.6">VARIABLES</text>

@@ -26,7 +26,7 @@ export function ContextCompaction({ className }: { className?: string }) {
         fontWeight="600"
         fill="currentColor"
       >
-        Compaction — same agent continues
+        Compaction: same agent continues
       </text>
 
       {/* Turns 1-3, summary, turns 4-5 */}
@@ -91,7 +91,7 @@ export function ContextCompaction({ className }: { className?: string }) {
         fontWeight="600"
         fill="currentColor"
       >
-        Context reset — new agent, handoff via files
+        Context reset: new agent, handoff via files
       </text>
 
       {/* Agent A bracket */}

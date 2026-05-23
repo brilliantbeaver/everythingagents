@@ -120,7 +120,7 @@ export function SearchPalette({ open, onOpenChange }: SearchPaletteProps) {
             </kbd>
           </div>
           <Command.List className="max-h-[60vh] overflow-y-auto p-2">
-            {/* Empty-state messaging — three cases:
+            {/* Empty-state messaging, three cases:
                 (a) index still loading,
                 (b) input empty (encourage the user to type),
                 (c) input non-empty but zero matches. */}

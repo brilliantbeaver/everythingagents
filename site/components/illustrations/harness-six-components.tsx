@@ -32,8 +32,8 @@ export function HarnessSixComponents({ className }: { className?: string }) {
       <desc id="hsc-desc">
         A neural model sits at the center. Six harness components surround
         it: Execution loop, Tools registry, Context manager, State store,
-        Lifecycle hooks, and Evaluation interface. State and Eval — the
-        two flagged as systematically underbuilt — are emphasized in the
+        Lifecycle hooks, and Evaluation interface. State and Eval, the
+        two flagged as systematically underbuilt, are emphasized in the
         warm amber accent.
       </desc>
 
@@ -182,7 +182,7 @@ export function HarnessSixComponents({ className }: { className?: string }) {
         textAnchor="middle"
         opacity="0.55"
       >
-        E, T, C, S, L, V — six runtime concerns, six failure modes, six places to look first
+        E, T, C, S, L, V: six runtime concerns, six failure modes, six places to look first
       </text>
     </svg>
   );

@@ -2,7 +2,7 @@
   "slug": "guided-determinism",
   "title": "Guided determinism for agents using AgentScript",
   "shortTitle": "Guided determinism",
-  "oneLine": "Combining LLM flexibility with deterministic gates in Agentforce. Built around one real refund agent.",
+  "oneLine": "Combining LLM flexibility with deterministic gates in Agentforce. Built around one real refund agent, end to end.",
   "prereqs": "Comfortable reading Apex and YAML-shaped DSLs. No prior Agent Script needed.",
   "status": "available"
 }

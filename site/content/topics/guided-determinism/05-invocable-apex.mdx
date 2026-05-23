@@ -5,8 +5,7 @@ keyIdea: Bulk shape, reserved names, truthful nulls, deterministic outputs. Stub
 minutes: 6
 ---
 
-Backing actions are how the agent does anything real. The shape Agent
-Script expects is **Invocable Apex** in three pieces:
+The previous lesson called out the backing-action layer as the truth source. This lesson is about what makes one trustworthy. Backing actions are how the agent does anything real. The shape Agent Script expects is **Invocable Apex** in three pieces:
 
 ```apex
 public with sharing class VerifyCustomer {
@@ -48,8 +47,9 @@ public with sharing class VerifyCustomer {
    `description`, or `label`.
 3. **Truthful nulls.** Return `''` for "not found" and `'false'` for
    "no". Not `'stub_response'` or `'TODO'`. Placeholder strings cause
-   *SMALL_TALK grounding* because the LLM falls back to its training
-   prior when an output looks bogus.
+   what the trace logs as *SMALL_TALK grounding*: the LLM decides the
+   output looks bogus and falls back to its training prior instead of
+   the actual return value.
 4. **Deterministic.** Given the same input, return the same output.
    The planner caches and re-uses results in the same turn.
 

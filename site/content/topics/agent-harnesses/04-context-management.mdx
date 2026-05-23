@@ -1,7 +1,7 @@
 ---
 number: 4
 title: "Context: compaction, resets, and anxiety"
-keyIdea: Two ways past the context limit — summarize in place, or reset and hand off via files. Choice depends on the model and on what your handoff artifacts can carry.
+keyIdea: Two ways past the context limit. Summarize in place, or reset and hand off via files. Choice depends on the model and on what your handoff artifacts can carry.
 minutes: 7
 ---
 
@@ -17,7 +17,7 @@ is one of the most consequential in the whole system.
 ## The two strategies
 
 **Compaction** keeps the same agent running. The harness summarizes
-earlier conversation in place — turns 1-3 collapse into a `∑` block —
+earlier conversation in place (turns 1-3 collapse into a `∑` block),
 and the same model continues with a shortened history. Continuity is
 preserved. The model knows it's the same agent, working on the same
 task, with a memory of what it did before, even if the memory is
@@ -60,7 +60,7 @@ it's stopping because it *thinks* it's about to.
 
 <Callout type="note" title="Model-dependence">
 Sonnet 4.5 exhibited context anxiety strongly enough that compaction
-alone wasn't enough — context resets became essential. Opus 4.6
+alone wasn't enough; context resets became essential. Opus 4.6
 largely removed the behavior; the GAN-inspired harness in the
 follow-up paper dropped resets and let the SDK's built-in compaction
 handle it. Every component in a harness encodes an assumption about
@@ -93,10 +93,10 @@ carries correctness.
 
 From the source material, a defensible default:
 
-- If your model exhibits context anxiety or strongly degrades near
-  its limit → **reset** with structured handoff.
-- If the model is robust at long context and you have a good context
-  manager → **compaction** is simpler.
+- If your model exhibits context anxiety or degrades sharply near
+  its limit, **reset** with structured handoff.
+- If the model holds up at long context and you have a good context
+  manager, **compaction** is simpler.
 - Either way, **anything that needs to survive should be in files**,
   not in the conversation. Compaction may eat conversational state;
   a reset definitely will.
@@ -110,12 +110,12 @@ have the surface to do it.
 
 Retrieval is a different question. Compaction and resets are both
 about dealing with a context window that's already full. Retrieval is
-about what to put in it in the first place — pulling a few relevant
+about what to put in it in the first place: pulling a few relevant
 files, docs, or memory entries instead of the whole repo.
 
 Retrieval is a C-component concern. Compaction and resets are also C,
-but they're *time*-shaped: they decide what to do when the window
-overflows. Retrieval is *space*-shaped: it decides what to load into
+but they're *time*-shaped; they decide what to do when the window
+overflows. Retrieval is *space*-shaped; it decides what to load into
 the window each turn.
 
 A real harness does both.

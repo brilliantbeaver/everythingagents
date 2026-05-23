@@ -66,7 +66,7 @@ casually re-prose.
 
 ## The coding-agent preamble
 
-Every later session begins with the same scripted sequence — *before*
+Every later session begins with the same scripted sequence, *before*
 any feature work:
 
 1. `pwd` to confirm working directory.
@@ -77,8 +77,8 @@ any feature work:
 6. *Only then* pick the highest-priority unfinished feature.
 
 The preamble isn't just informational. It's a *consistency check*. If
-the previous session left broken state — a non-running dev server, a
-test that no longer passes, an uncommitted file — steps 4 and 5
+the previous session left broken state (a non-running dev server, a
+test that no longer passes, an uncommitted file) steps 4 and 5
 catch it before any new work compounds the mess.
 
 ## Why end-to-end testing is non-optional
@@ -106,7 +106,7 @@ button isn't there.
 
 - The agent's cross-session state lives in human-readable files. A
   human can audit progress at any time.
-- Compaction is not relied upon for correctness — only for staying
+- Compaction is not relied upon for correctness, only for staying
   within a single session.
 - Strong-constraint prompts ("it is unacceptable to remove or edit
   tests") plus a JSON format produce empirically strong adherence.

@@ -29,7 +29,7 @@ A few patterns the simulator makes visible:
   feature, but no progress file gets written. The next session
   would start blind.
 - Disable **L** on `Bash` and the audit/permission step skips. The
-  call still runs — that's the point. Without L, side effects are
+  call still runs (that's the point). Without L, side effects are
   unmonitored.
 - Disable **V** and the trace stops capturing structured trajectory
   entries. Steps still execute; you just can't reproduce them or
@@ -85,7 +85,7 @@ fix-precision is 5× chance, but its regression-precision is only
 2× chance. It can name what an edit will help. It cannot reliably
 name what it will break.
 
-The fix is decision observability — a versioned change manifest
+The fix is decision observability: a versioned change manifest
 where every edit predicts both fixes *and* regressions, and the
 *next* round verifies or falsifies the predictions. Bad edits get
 rolled back at file granularity.
@@ -118,17 +118,17 @@ Each of those points to a different fix. None of them are model fixes.
 
 <KnowledgeCheck question="An agent successfully implements a feature, but the next session re-implements the same feature from scratch. Which component is failing?">
   <Option>
-    E — the execution loop is stuck.
+    E: the execution loop is stuck.
   </Option>
   <Option correct>
-    S — state that should have survived the session boundary didn't.
+    S: state that should have survived the session boundary didn't.
   </Option>
   <Option>
-    T — the tool registry is rejecting valid calls.
+    T: the tool registry is rejecting valid calls.
   </Option>
   <Explanation>
-    The execution loop ran fine — the feature got implemented. The
-    tool registry was fine — calls succeeded. The problem is that
+    The execution loop ran fine: the feature got implemented. The
+    tool registry was fine: calls succeeded. The problem is that
     the *fact of completion* didn't survive into the next session.
     That's S: an externalized state artifact (progress file,
     feature flag, git commit) that the next session reads on
