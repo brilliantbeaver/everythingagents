@@ -110,7 +110,7 @@ export default async function TopicPage({ params }: { params: Params }) {
               {" "}
               <code className="rounded bg-code px-1 py-0.5 font-mono text-[0.85em]">available when</code>
               {" "}
-              gates). Lesson 12 traces this lineage in depth — see{" "}
+              gates). Lesson 12 traces this lineage in depth; see{" "}
               <Link
                 href="/topics/guided-determinism/12-research"
                 className="text-accent underline-offset-2 hover:underline"
@@ -155,7 +155,7 @@ export default async function TopicPage({ params }: { params: Params }) {
               <strong className="font-semibold">evaluation interface</strong>.
               Each one is a separate failure mode, each one is a separate
               place to look first when behavior gets weird. The two in
-              amber — State and Eval — are the ones the rest of the
+              amber, State and Eval, are the ones the rest of the
               industry systematically underbuilds.
             </p>
             <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">

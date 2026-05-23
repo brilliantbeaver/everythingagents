@@ -11,8 +11,8 @@ export function NeurosymbolicFrame({ className }: { className?: string }) {
         Neural choice nested inside a symbolic scaffold
       </title>
       <desc id="nsf-desc">
-        A soft, cloud-shaped neural region — where the language model
-        decides — sits inside a hard rectangular frame whose edges are the
+        A soft, cloud-shaped neural region (where the language model
+        decides) sits inside a hard rectangular frame whose edges are the
         symbolic scaffolding: available-when gates, the topic finite state
         machine, and typed Apex inputs and outputs. The two together form a
         neuro-symbolic system.

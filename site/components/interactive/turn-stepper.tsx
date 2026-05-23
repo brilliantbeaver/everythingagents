@@ -46,7 +46,7 @@ const frames: Frame[] = [
     phase: "act",
     title: "Tool registry validates and dispatches",
     detail:
-      "The tool registry (T) checks the call against Read's schema. file_path is a required string — it's present and a string. Pre-tool-use hooks (L) run for permissioning. Then it dispatches to the implementation.",
+      "The tool registry (T) checks the call against Read's schema. file_path is a required string, and it's present and a string. Pre-tool-use hooks (L) run for permissioning. Then it dispatches to the implementation.",
     active: ["E", "T", "L"],
     example:
       "registry: T.validate(Read, args) → ok\nhook: PreToolUse Read → allowed\ndispatch: read_file('src/auth_service_test.py')",
@@ -55,7 +55,7 @@ const frames: Frame[] = [
     phase: "act",
     title: "Tool returns, post-call hook fires",
     detail:
-      "The implementation returns 1.4kB of file contents. Post-tool-use hooks (L) run — auditing the call, capturing metrics. The result is appended to the conversation as a tool result message.",
+      "The implementation returns 1.4kB of file contents. Post-tool-use hooks (L) run, auditing the call and capturing metrics. The result is appended to the conversation as a tool result message.",
     active: ["E", "T", "L"],
     example:
       "result: <file contents, 1402 bytes>\nhook: PostToolUse Read → audited\nappend: tool_result message",

@@ -1,6 +1,6 @@
 ---
 number: 7
-title: The evaluation interface — and why it's underbuilt
+title: The evaluation interface, and why it's underbuilt
 keyIdea: V captures structured trajectories so something downstream can score them. Most harnesses log to text and stop there. That's why traces win and summaries lose.
 minutes: 5
 ---
@@ -14,7 +14,7 @@ answers "did the agent advance toward its goal?" The first is for
 humans reading after the fact. The second is for code reading
 *at scale*.
 
-## L vs V — a sharp distinction
+## L vs V: a sharp distinction
 
 From the survey (source: 2604.agent-harnesses-survey.pdf §2.2):
 
@@ -22,8 +22,7 @@ From the survey (source: 2604.agent-harnesses-survey.pdf §2.2):
 > when; a system with V can tell you whether that tool call
 > advanced the agent toward its goal."
 
-Both intercept the execution stream. The difference is *what they
-emit*.
+Both intercept the execution stream. The difference is *what they emit*.
 
 | | Lifecycle hooks (L) | Evaluation interface (V) |
 |---|---|---|
@@ -110,8 +109,8 @@ preserve it.
 </KeyIdea>
 
 This is why V matters. A good V is precisely the surface that lets
-something downstream — a human debugger, a benchmark, a meta-harness
-optimizer — *navigate* the trace, not summarize it.
+something downstream (a human debugger, a benchmark, a meta-harness
+optimizer) *navigate* the trace, not summarize it.
 
 ## The "progressive disclosure" pattern
 
@@ -136,19 +135,19 @@ A useful test: can a script that's never seen your harness compute
 a per-task pass rate from your trace files?
 
 If yes, you have V. If the answer involves "well, you'd parse the
-log lines and look for the string `[done]`" — you don't.
+log lines and look for the string `[done]`", you don't.
 
 The good news is that V is mostly a serialization discipline. Take
-the things you already know at each turn — tool, args, result, ok,
-latency — and write them as one structured object instead of three
+the things you already know at each turn (tool, args, result, ok,
+latency) and write them as one structured object instead of three
 log lines. Decide on a schema, version it, document it. That's V.
 
 <Callout type="note" title="Why this is the underbuilt component">
 Logging feels like it covers V. It doesn't, because logs are
 unparseable without effort. The fix is small (a schema and a
-serializer) and the leverage is huge — automated harness
-optimization, cross-harness comparison, regression tracking — but
-the small fix doesn't get done because logs feel like they're already
+serializer) and the leverage is huge: automated harness
+optimization, cross-harness comparison, regression tracking. The
+small fix doesn't get done because logs feel like they're already
 doing the job.
 </Callout>
 
@@ -165,7 +164,7 @@ doing the job.
   <Explanation>
     Option 1 is L (humans reading logs). Option 3 is also closer to L
     (logging happened). The V criterion is consumability by code:
-    can a downstream tool — benchmark, optimizer, analyzer — read
+    can a downstream tool (benchmark, optimizer, analyzer) read
     the trajectories *without* knowing your specific harness? That
     only works if the trajectories are in a canonical, typed format.
   </Explanation>

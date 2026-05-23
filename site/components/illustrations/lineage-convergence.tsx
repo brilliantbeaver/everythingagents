@@ -13,8 +13,8 @@ export function LineageConvergence({ className }: { className?: string }) {
         neuro-symbolic AI (Kautz, Garcez and Lamb), ReAct and tool use
         (Yao, Schick), constrained generation (Willard and Louf, Park),
         and cognitive architectures (CoALA / Sumers et al.). Agent
-        Script sits at the central intersection where all four overlap
-        — it is defined by the convergence, not downstream of it.
+        Script sits at the central intersection where all four overlap.
+        It is defined by the convergence, not downstream of it.
       </desc>
 
       {/* Four overlapping ellipses, 2x2 cluster centered on (360, 160) */}

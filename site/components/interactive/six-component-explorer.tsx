@@ -21,7 +21,7 @@ const components: ComponentInfo[] = [
     oneLiner: "Observe → think → act → commit. Termination, error recovery.",
     function:
       "Sequences turns. Decides when to stop. Recovers from tool errors instead of crashing or looping forever. Without E there is no multi-step execution at all.",
-    failure: "Execution runaway — loops that never terminate, no error-recovery arc.",
+    failure: "Execution runaway: loops that never terminate, no error-recovery arc.",
     claudeCode:
       "The Claude Code agent loop itself. The bit you don't see: the code that hands the model output back to a tool dispatcher, catches errors, and decides whether to keep going.",
     surveyed: "All real harnesses. Necessary by definition.",
@@ -32,7 +32,7 @@ const components: ComponentInfo[] = [
     oneLiner: "Typed, validated catalog. Routes calls. Monitors invocations.",
     function:
       "Holds tool schemas. Validates arguments before dispatch. Routes to the right implementation. Refuses calls that don't match the schema instead of letting the model improvise.",
-    failure: "Tool misuse — hallucinated calls, bad arguments, ungoverned composition.",
+    failure: "Tool misuse: hallucinated calls, bad arguments, ungoverned composition.",
     claudeCode:
       "Bash, Edit, Read, Grep, Glob, plus any MCP servers you've added. Each has a strict schema; mismatched calls are rejected by the registry, not by the model.",
     surveyed: "All real harnesses. Necessary by definition.",
@@ -43,7 +43,7 @@ const components: ComponentInfo[] = [
     oneLiner: "What enters the model's window. Compaction, retrieval, ordering.",
     function:
       "Decides what the model sees on each turn. Compacts old messages, retrieves relevant facts, orders the prompt. Most of what 'context engineering' described in 2025 lives here.",
-    failure: "Context blowout — history grows unbounded, lost-in-the-middle effects, cost explosion.",
+    failure: "Context blowout: history grows unbounded, lost-in-the-middle effects, cost explosion.",
     claudeCode:
       "The compaction strategy when you approach context limit, the ranking of which CLAUDE.md sections appear, which tool-result excerpts get kept versus elided.",
     surveyed: "Heavily implemented; coupled tightly to L (retention vs. security).",
@@ -53,8 +53,8 @@ const components: ComponentInfo[] = [
     name: "State store",
     oneLiner: "What survives turns. Files, git, long-term memory.",
     function:
-      "Holds state that needs to outlive a turn — and ideally a whole session. Files on disk, git history, vector stores, structured memory. The thing the agent reads when it 'gets its bearings'.",
-    failure: "State loss on failure — multi-step task interrupted, no recovery point.",
+      "Holds state that needs to outlive a turn, and ideally a whole session. Files on disk, git history, vector stores, structured memory. The thing the agent reads when it 'gets its bearings'.",
+    failure: "State loss on failure: multi-step task interrupted, no recovery point.",
     claudeCode:
       "Your repo and its git log. CLAUDE.md memory directory. The progress file convention from Anthropic's long-running-agents pattern.",
     surveyed: "Underbuilt across the field. Often improvised per-project.",
@@ -65,7 +65,7 @@ const components: ComponentInfo[] = [
     oneLiner: "Pre/post interception. Auth, logging, policy, instrumentation.",
     function:
       "Runs before and after every tool call (and often every turn). Authenticates, audits, enforces policy, redacts secrets, captures metrics. Operational, not behavioral.",
-    failure: "Unmonitored side effects — agent sends emails, modifies files, no one logs it.",
+    failure: "Unmonitored side effects: agent sends emails, modifies files, no one logs it.",
     claudeCode:
       "PreToolUse and PostToolUse hooks in settings.json. Permission gates. The tool-approval prompt. SessionStart hooks.",
     surveyed:
@@ -76,8 +76,8 @@ const components: ComponentInfo[] = [
     name: "Evaluation interface",
     oneLiner: "Standardized trajectory capture. For downstream judges.",
     function:
-      "Emits structured action sequences, intermediate state, success/failure signals — in a canonical schema that benchmarks and observability platforms can directly consume. Not the same as logging.",
-    failure: "Unobservable behavior — can't reconstruct what happened, can't compare across systems.",
+      "Emits structured action sequences, intermediate state, and success/failure signals in a canonical schema that benchmarks and observability platforms can directly consume. Not the same as logging.",
+    failure: "Unobservable behavior: can't reconstruct what happened, can't compare across systems.",
     claudeCode:
       "The transcript and trace artifacts. Structured trajectories that downstream tooling (HAL, eval harnesses, the meta-harness search agent) can read directly.",
     surveyed:

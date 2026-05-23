@@ -5,7 +5,7 @@ keyIdea: Pure-prompt agents stall. Pure-deterministic agents are brittle. Guided
 minutes: 4
 ---
 
-A naive agent is one of two extremes. Both fail.
+The previous lesson laid out what the refund agent does. Before we look at how it's built, it helps to see why the obvious approaches don't work. A naive agent tends toward one of two extremes. Both fail.
 
 <TwoFailureModes className="my-6 w-full" />
 
@@ -26,7 +26,7 @@ happens:
 
 Every transition is a hard `if`. What happens:
 
-- The agent feels robotic and brittle.
+- The agent feels robotic.
 - It cannot handle compound user input ("refund INV-1007, my email is
   alice@salesforce.com" with both pieces in one message).
 - Adding a new edge case means adding another `if` branch.
@@ -40,5 +40,5 @@ Every transition is a hard `if`. What happens:
 
 The pattern: the LLM picks *what to do next*. Deterministic gates
 decide *what is allowed*. Backing actions decide *what is true*. Each
-of those three sentences corresponds to a different control surface,
-which the next lesson unpacks.
+of those three sentences corresponds to a different control surface.
+The next lesson unpacks them.

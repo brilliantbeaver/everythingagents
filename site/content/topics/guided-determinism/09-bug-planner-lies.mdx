@@ -5,10 +5,7 @@ keyIdea: "@outputs.X is what the planner says Apex returned. Vague schemas plus 
 minutes: 7
 ---
 
-This is the deepest insight from this build. **`@outputs.X` is what the
-planner says the action returned, not what Apex literally returned.**
-The LLM can summarize, paraphrase, or fabricate a tool result, and that
-fabricated value becomes your variable's new value.
+The first bug was an ops problem: the agent user couldn't see the class. This second bug lives one layer deeper, inside the planner itself, and it is the deepest insight from this build. **`@outputs.X` is what the planner says the action returned, not what Apex literally returned.** The LLM can summarize, paraphrase, or fabricate a tool result, and that fabricated value becomes your variable's new value.
 
 ## A real example we hit
 

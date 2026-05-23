@@ -5,8 +5,7 @@ keyIdea: Edit, validate, deploy, preview, trace, ship. Don't ship during inner-l
 minutes: 5
 ---
 
-Before we start hunting bugs in lessons 8–10, you need to know the dev
-loop. Every iteration is small.
+You now have the four control surfaces and the rules for a trustworthy backing action. Before we start hunting bugs in lessons 8 through 10, you need to know the dev loop. Every iteration is small.
 
 <DevLoop className="my-6 w-full" />
 
@@ -51,8 +50,8 @@ sf agent preview send --json --authoring-bundle <api_name> \
 sf agent preview end --json --authoring-bundle <api_name> --session-id $SID
 ```
 
-`--use-live-actions` is essential. Without it, Apex is not actually
-called, and you are testing the LLM rather than the system.
+`--use-live-actions` is essential. Without it, Apex is never actually
+called and you are testing the LLM rather than the system.
 
 ## Step 5: read traces
 
@@ -67,7 +66,7 @@ sf agent activate --json --api-name <api_name>
 ```
 
 Every publish creates a permanent version. Do not publish during inner-
-loop iteration. Only when you are happy with the build.
+loop iteration. Publish only when you are happy with the build.
 
 ## Step 7: verify the published agent
 

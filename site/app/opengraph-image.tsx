@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Everything Agents — tutorials for building agents";
+export const alt = "Everything Agents: tutorials for building reliable agents";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -60,7 +60,7 @@ export default async function OpenGraphImage() {
               maxWidth: 980,
             }}
           >
-            Tutorials for building agents.
+            Tutorials for building reliable agents.
           </div>
           <div
             style={{

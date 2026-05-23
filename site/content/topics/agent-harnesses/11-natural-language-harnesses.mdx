@@ -1,7 +1,7 @@
 ---
 number: 11
 title: Natural-language harnesses (CLAUDE.md, skills, AGENTS.md)
-keyIdea: The control logic of a harness can live in editable text. Contracts, roles, stages, state semantics, failure taxonomy — written once, run by a shared runtime.
+keyIdea: The control logic of a harness can live in editable text. Contracts, roles, stages, state semantics, failure taxonomy, all written once and run by a shared runtime.
 minutes: 6
 ---
 
@@ -22,7 +22,7 @@ Two systems that nominally differ by one design choice usually
 differ simultaneously in prompts, tool mediation, artifact
 conventions, verification gates, and state semantics. This collapses
 evaluation into *bundle comparisons* rather than module-level
-evidence — you can't isolate which change moved the score.
+evidence; you can't isolate which change moved the score.
 
 The NLAH proposal: pull the *control logic* out into an editable
 artifact. Code stays responsible for deterministic operations, tool
@@ -50,7 +50,7 @@ set of failure modes turns that scatter into a typed contract.
 
 ## The runtime that reads it
 
-NLAHs aren't free-standing — they're consumed by an **Intelligent
+NLAHs aren't free-standing. They're consumed by an **Intelligent
 Harness Runtime** (IHR) with three pieces:
 
 1. **In-loop LLM interpreter.** Reads the NLAH, the current state,
@@ -72,17 +72,17 @@ every harness.
 Several real-world systems are NLAH-shaped, even if they don't use
 the term:
 
-- **`CLAUDE.md`** — codebase-specific rules, conventions, and
+- **`CLAUDE.md`**: codebase-specific rules, conventions, and
   preferences. The agent reads it on every session. Written in
   prose, but it's *control logic*: when to ask, when to defer,
   what to never modify.
-- **Skills** — named, reusable units of agent behavior with their
+- **Skills**: named, reusable units of agent behavior with their
   own description and inputs. The agent picks them off a shelf
   rather than re-deriving the procedure each time.
-- **`AGENTS.md`** — multi-agent role definitions. Each role is a
+- **`AGENTS.md`**: multi-agent role definitions. Each role is a
   persona with responsibilities and constraints, written in prose
   the runtime parses on dispatch.
-- **Hooks** — declarative configuration for pre- and post-tool
+- **Hooks**: declarative configuration for pre- and post-tool
   behavior. The hook script is code, but the *decision* of which
   hook fires when is a natural-language-shaped policy.
 
@@ -93,14 +93,14 @@ form.
 ## What the empirical results show
 
 The NLAH paper runs three controlled experiments. The most striking
-result is from RQ3 — code-to-text migration:
+result is from RQ3, code-to-text migration:
 
 | System | OSWorld score |
 |---|---|
 | Native OS-Symphony (Python harness) | 30.4% |
 | OS-Symphony realized as an NLAH | **47.2%** |
 
-A *17-point* gain from porting a Python harness to a structured
+A 17-point gain from porting a Python harness to a structured
 natural-language harness over a shared runtime. The migration
 re-centered the task around file-backed state and artifact-backed
 verification rather than brittle GUI-repair loops.
@@ -117,9 +117,9 @@ uniformly better*:
 
 The verifier *hurts* on OSWorld. Adding a strict verifier moved
 local success signals away from the benchmark's actual acceptance
-criteria. (See the *verifier–benchmark misalignment* failure mode
-from lesson 8.) A finer choice of when and how to verify would help;
-verification by default does not.
+criteria. (See the *verifier vs. benchmark misalignment* failure
+mode from lesson 8.) A finer choice of when and how to verify would
+help; verification by default does not.
 
 ## Implications
 
@@ -140,13 +140,13 @@ side-by-side, and verify the migration was faithful.
 
 **The optimization surface gets smaller.** Tuning prose is much
 cheaper than refactoring controller code, which connects directly
-to lesson 12 — meta-search over harnesses.
+to lesson 12: meta-search over harnesses.
 
 <Callout type="pitfall" title="Runtime contamination">
 There's a real limit. When an LLM interprets an NL harness, the
 runtime's own reasoning entangles with the harness logic. You can't
 cleanly attribute behavior to one or the other. This is why the IHR
-keeps the runtime charter fixed across all tasks — to factor that
+keeps the runtime charter fixed across all tasks: to factor that
 contamination out as far as possible. Whenever you read a result
 that compares two NLAHs, ask whether the runtime was held constant.
 </Callout>

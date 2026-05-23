@@ -43,7 +43,7 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         fill="currentColor"
         opacity="0.7"
       >
-        E — execution loop
+        E: execution loop
       </text>
 
       {/* Center model node */}
@@ -71,11 +71,11 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         </text>
       </g>
 
-      {/* C — context manager (top-left) */}
+      {/* C: context manager (top-left) */}
       <g transform="translate(150, 80)">
         <rect width="170" height="58" rx="4" fill="oklch(var(--muted))" stroke="currentColor" strokeWidth="1.25" />
         <text x="14" y="22" fontFamily="var(--font-jetbrains-mono), ui-monospace, monospace" fontSize="11" fontWeight="700" fill="currentColor">
-          C — context manager
+          C: context manager
         </text>
         <text x="14" y="40" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10.5" fill="currentColor" opacity="0.6">
           what the model sees
@@ -85,11 +85,11 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         </text>
       </g>
 
-      {/* S — state store (top-right) */}
+      {/* S: state store (top-right) */}
       <g transform="translate(400, 80)">
         <rect width="170" height="58" rx="4" fill="oklch(var(--muted))" stroke="currentColor" strokeWidth="1.25" />
         <text x="14" y="22" fontFamily="var(--font-jetbrains-mono), ui-monospace, monospace" fontSize="11" fontWeight="700" fill="currentColor">
-          S — state store
+          S: state store
         </text>
         <text x="14" y="40" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10.5" fill="currentColor" opacity="0.6">
           what survives the turn
@@ -99,11 +99,11 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         </text>
       </g>
 
-      {/* T — tool registry (right) */}
+      {/* T: tool registry (right) */}
       <g transform="translate(550, 175)">
         <rect width="140" height="58" rx="4" fill="none" stroke="oklch(var(--accent))" strokeWidth="1.5" />
         <text x="14" y="22" fontFamily="var(--font-jetbrains-mono), ui-monospace, monospace" fontSize="11" fontWeight="700" fill="oklch(var(--accent))">
-          T — tools
+          T: tools
         </text>
         <text x="14" y="40" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10.5" fill="currentColor" opacity="0.6">
           touches the world
@@ -113,11 +113,11 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         </text>
       </g>
 
-      {/* L — lifecycle hooks (bottom-left) */}
+      {/* L: lifecycle hooks (bottom-left) */}
       <g transform="translate(150, 270)">
         <rect width="170" height="58" rx="4" fill="oklch(var(--muted))" stroke="currentColor" strokeWidth="1.25" />
         <text x="14" y="22" fontFamily="var(--font-jetbrains-mono), ui-monospace, monospace" fontSize="11" fontWeight="700" fill="currentColor">
-          L — lifecycle hooks
+          L: lifecycle hooks
         </text>
         <text x="14" y="40" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10.5" fill="currentColor" opacity="0.6">
           intercept every call
@@ -127,11 +127,11 @@ export function HarnessAnatomy({ className }: { className?: string }) {
         </text>
       </g>
 
-      {/* V — evaluation interface (bottom-right) */}
+      {/* V: evaluation interface (bottom-right) */}
       <g transform="translate(400, 270)">
         <rect width="170" height="58" rx="4" fill="oklch(var(--muted))" stroke="currentColor" strokeWidth="1.25" />
         <text x="14" y="22" fontFamily="var(--font-jetbrains-mono), ui-monospace, monospace" fontSize="11" fontWeight="700" fill="currentColor">
-          V — evaluation
+          V: evaluation
         </text>
         <text x="14" y="40" fontFamily="var(--font-inter), system-ui, sans-serif" fontSize="10.5" fill="currentColor" opacity="0.6">
           structured trajectories

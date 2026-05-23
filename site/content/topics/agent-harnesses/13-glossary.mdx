@@ -51,8 +51,8 @@ metrics. The component most underbuilt in real systems.
 
 <Term name="evaluation interface (V)">
 Standardized capture of action trajectories, intermediate states, and
-success signals. What downstream consumers — benchmarks, optimizers,
-analyzers — read directly. Not the same as logging.
+success signals. What downstream consumers (benchmarks, optimizers,
+analyzers) read directly. Not the same as logging.
 </Term>
 
 <Term name="harness turn">
@@ -100,7 +100,7 @@ tiebreaker when they disagree.
 
 <Term name="natural-language harness (NLAH)">
 A structured natural-language artifact that exposes a harness's
-control logic — contracts, roles, stages, adapters, state semantics,
+control logic: contracts, roles, stages, adapters, state semantics,
 failure taxonomy. Consumed by a shared runtime (IHR) so harnesses
 become editable, comparable, and migratable.
 </Term>
@@ -125,7 +125,7 @@ edit will fix (~5× chance) far more reliably than what it will break
 self-evolution loops.
 </Term>
 
-<Term name="verifier–benchmark misalignment">
+<Term name="verifier vs. benchmark misalignment">
 A failure mode where local verifier success diverges from the
 benchmark's actual acceptance criterion. Adding more structure can
 move acceptance signals away from benchmark acceptance. Mitigation:
@@ -135,6 +135,6 @@ itself reads.
 
 <Term name="harness engineering">
 The 2026 successor discipline to prompt and context engineering.
-Designing the full six-component runtime — not just the prompt or
+Designing the full six-component runtime, not just the prompt or
 the context. Coined by OpenAI in February 2026.
 </Term>

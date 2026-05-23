@@ -14,8 +14,10 @@ export default function TopicsIndex() {
       <h1 className="mt-3 font-serif text-2xl leading-tight tracking-tight sm:text-3xl">
         Topics
       </h1>
-      <p className="ui-sans mt-2 text-sm text-muted-foreground">
-        Each topic is a sequenced set of lessons around one real agent.
+      <p className="ui-sans mt-2 max-w-prose text-sm text-muted-foreground">
+        Each topic is a sequenced set of lessons built around one real agent.
+        Read top to bottom, or jump to whichever piece of the reliability
+        problem you're stuck on.
       </p>
 
       <div className="mt-6 max-w-4xl overflow-x-auto">
@@ -47,10 +49,10 @@ export default function TopicsIndex() {
                     <p className="mt-1 max-w-xl text-xs text-muted-foreground">{t.oneLine}</p>
                   </td>
                   <td className="py-3 pr-4 tabular-nums text-foreground/80">
-                    {t.lessons.length || "—"}
+                    {t.lessons.length || "–"}
                   </td>
                   <td className="py-3 pr-4 tabular-nums text-foreground/80">
-                    {topicMinutes(t) || "—"}
+                    {topicMinutes(t) || "–"}
                   </td>
                   <td className="py-3 pr-4 text-xs uppercase tracking-wide">
                     {isAvail ? (

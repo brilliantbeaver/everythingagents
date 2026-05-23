@@ -1,15 +1,15 @@
 ---
 number: 9
 title: The generator–evaluator loop
-keyIdea: Self-evaluation is unreliable. Splitting the doer from the judge — and tuning the judge to be skeptical — is the first structural lever you reach for on subjective work.
+keyIdea: Self-evaluation is unreliable. Splitting the doer from the judge, then tuning the judge to be skeptical, is the first structural lever you reach for on subjective work.
 minutes: 6
 ---
 
-If you've used an agent on anything subjective — a frontend design,
-a copy edit, a research summary — you've seen the failure mode that
+If you've used an agent on anything subjective (a frontend design,
+a copy edit, a research summary) you've seen the failure mode that
 motivates this lesson. From Anthropic's engineering writeup:
 
-> "Agents tend to respond by confidently praising the work — even
+> "Agents tend to respond by confidently praising the work, even
 > when, to a human observer, the quality is obviously mediocre."
 > (source: 2603.harness-design-for-long-running-apps.md)
 
@@ -27,7 +27,7 @@ still a model, still inclined to be generous toward LLM-generated
 outputs. But once external feedback exists, two things become true
 that weren't before:
 
-1. The generator has something *concrete* to iterate against — not
+1. The generator has something *concrete* to iterate against: not
    its own self-assessment but findings from outside.
 2. The evaluator's prompt is a much smaller, more tractable
    optimization surface than the generator's. You can spend
@@ -51,7 +51,7 @@ carry cleanly over to code review.
   design quality, originality, craft, functionality.
 - Design and originality weighted heavily to penalize "AI slop"
   (purple gradients on white cards, library defaults).
-- Evaluator given a real browser through Playwright MCP — it
+- Evaluator given a real browser through Playwright MCP: it
   navigates, screenshots, and *studies* the live page before grading.
 - Few-shot calibration of the evaluator against the author's
   preferences.
@@ -59,8 +59,8 @@ carry cleanly over to code review.
 
 A surprise finding: rubric *wording* steers aesthetics. The phrase
 "the best designs are museum quality" pushed outputs toward a
-recognizable visual convergence. The rubric is latent style direction
-— a feature when you want a particular style, a bug when you didn't
+recognizable visual convergence. The rubric is latent style direction:
+a feature when you want a particular style, a bug when you didn't
 realize the rubric was specifying one.
 
 ### Full-stack coding (verifiable)
@@ -137,7 +137,7 @@ deciding they weren't a big deal*. Several rounds of "read its logs,
 find divergences from your judgment, update its prompt" are
 required.
 
-**Verifier ≠ benchmark alignment.** Local pass on the evaluator's
+**Verifier vs. benchmark alignment.** Local pass on the evaluator's
 criteria can still diverge from the *true* acceptance object. The
 NLAH paper shows this empirically on SWE-bench: adding structure
 can shift local success signals away from the actual benchmark
@@ -164,7 +164,7 @@ eventually move the generator's outputs in the same direction.
     reliable error signal (option 3 is wrong). The real value is
     structural: the generator now has external feedback to iterate
     on, and you can invest engineering effort in tuning the evaluator
-    to be skeptical — a much smaller surface than tuning the
+    to be skeptical, a much smaller surface than tuning the
     generator.
   </Explanation>
 </KnowledgeCheck>

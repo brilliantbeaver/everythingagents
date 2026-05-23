@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: "%s · Everything Agents",
   },
   description:
-    "Hands-on tutorials for building agents. Guided determinism, AgentScript, Apex Invocable actions, planner traces, defense in depth — real code, real bugs, real fixes.",
+    "Hands-on tutorials for building reliable agents. Guided determinism, AgentScript, Apex Invocable actions, planner traces, defense in depth. Real code, real bugs, real fixes.",
   applicationName: "Everything Agents",
   authors: [{ name: "Everything Agents" }],
   generator: "Next.js",

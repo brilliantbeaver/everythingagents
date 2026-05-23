@@ -2,6 +2,6 @@
   "slug": "observing-agents",
   "title": "Observing Agents",
   "shortTitle": "Observing agents",
-  "oneLine": "Pulling session traces, parsing them, and turning behavior signals into actionable diagnostics.",
+  "oneLine": "Pulling session traces, parsing them, and turning behavior signals into things you can actually fix.",
   "status": "upcoming"
 }

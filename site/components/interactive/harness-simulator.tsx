@@ -254,7 +254,7 @@ export function HarnessSimulator() {
           turn: step.turn,
           ok: false,
           phase: step.phase,
-          line: `${step.action} — failed`,
+          line: `${step.action}: failed`,
           detail: step.failsIfDisabled![disabledFailure],
         });
         aborted = true;
@@ -444,7 +444,7 @@ export function HarnessSimulator() {
             </p>
             <div className="mt-1.5 rounded border border-border bg-background p-2 font-mono text-[10.5px] leading-relaxed text-foreground/80">
               {events.stateWrites.length === 0 ? (
-                <span className="text-muted-foreground/60">— nothing yet —</span>
+                <span className="text-muted-foreground/60">(nothing yet)</span>
               ) : (
                 events.stateWrites.map((w, i) => (
                   <div key={i} className="truncate">
