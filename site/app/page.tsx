@@ -14,8 +14,9 @@ export default function Home() {
           Tutorials for building reliable agents.
         </h1>
         <p className="ui-sans mt-3 text-sm text-muted-foreground">
-          Real code, real bugs, real fixes. An agent is an LLM that picks its
-          own next step; these tutorials are about making that pick predictable.
+          Real code, real bugs, real fixes. An agent is a loop with tools and
+          an LLM that picks its own next step; these tutorials are about making
+          that pick predictable.
           Starts with Agentforce, Salesforce's agent platform, and grows from
           there. Free to read.
         </p>
