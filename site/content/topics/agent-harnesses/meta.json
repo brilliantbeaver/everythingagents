@@ -2,7 +2,7 @@
   "slug": "agent-harnesses",
   "title": "Demystifying Agent Harnesses",
   "shortTitle": "Agent harnesses",
-  "oneLine": "What's actually inside an agent harness, how the planner-tools-executor loop runs, and where each design knob lives. Coding agents are the running example; the patterns generalize.",
+  "oneLine": "What's actually inside an agent harness: the runtime that externalizes memory, tools, verification, and lifecycle around the model. Coding agents are the running example; the patterns generalize.",
   "prereqs": "You've used an agent of some kind (Claude Code, Cursor, a research agent, a customer-service bot). Comfortable reading shell, Python, and JSON. No prior harness theory needed.",
   "status": "available"
 }

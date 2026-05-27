@@ -134,7 +134,13 @@ You don't need a meta-harness to benefit from clean trajectories.
 each edit with a prediction: what will this fix, what might it
 break. Verify the prediction next round. Roll back the edits whose
 predictions failed. This is the discipline AHE codifies; doing it
-informally as a human still helps.
+informally as a human still helps. The Code-as-Harness survey adds a
+governance corollary: a self-evolving harness is safety-critical
+runtime code, so each mutation should declare which component it
+modifies, which failure it targets, which invariant it preserves,
+which evaluation can falsify it, and how to roll it back. A harness
+that improves pass rate by quietly weakening a verifier is regressing,
+not improving. (source: 2605.code-as-harness.pdf, §5.2.3)
 
 ## The other big claim worth flagging
 

@@ -106,6 +106,32 @@ The contract is shared input to both. The generator builds against
 it, the evaluator scores against it. When the generator and
 evaluator disagree, the contract is the tiebreaker.
 
+## Generalized: plan, execute, verify
+
+The Code-as-Harness survey names the broader pattern this points
+toward: *plan, execute, verify*, or PEV. Every accepted state
+transition is bound to three things in sequence: an externalized
+plan contract (intent, invariants, acceptance commands, rollback
+strategy), execution inside a sandboxed and permissioned environment,
+and a verification step that produces a structured evidence bundle
+rather than a single bit. (source: 2605.code-as-harness.pdf, §3.4)
+
+The sprint contract from above is a plan contract under another name.
+Generator-evaluator with sprint contracts is a special case of PEV
+where the verifier is itself an LLM driving the live artifact.
+Initializer + coding agent (lesson 10) is another special case where
+the plan lives in `feature_list.json` and the verification is the
+browser-based smoke test. The pattern generalizes: anywhere you can
+name what "done" looks like before you generate, and check it
+afterward, you can run a PEV loop.
+
+The reason to learn the broader name: PEV makes explicit that
+verification produces an *evidence bundle* with known gaps, not a
+pass/fail bit. A check that returns "tests passed, but no browser
+regression run on the checkout flow" is honest about what it
+proved. That's how you avoid the *verifier vs. benchmark
+misalignment* failure mode from lesson 8.
+
 ## When the evaluator is worth its cost
 
 This is one of the lessons Anthropic's follow-up makes most clearly:

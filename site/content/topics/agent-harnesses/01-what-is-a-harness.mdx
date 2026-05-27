@@ -60,6 +60,14 @@ benchmark score go from 6.7% to 68.3% on the same model. (source:
 +26% gain from harness-only changes on TerminalBench 2.0. The pattern
 keeps repeating: the model isn't moving, the harness is.
 
+Why does harness-only work move scores so much? The externalization
+frame answers it. A harness changes what the model has to solve
+internally: a shopping list converts recall into recognition; a
+verifier converts judgment into a checked transition. Most "harness
+wins" are really representational moves that take a burden out of
+the model's head and put it in a runnable artifact. (source:
+2604.externalization-llm-agents.pdf, §1 and §2.4)
+
 **The harness became something you can actually *engineer*.** OpenAI
 coined the term "harness engineering" in February 2026 alongside the
 Codex deployment. By April, two papers had shown that harnesses could
@@ -69,7 +77,11 @@ be searched and evolved automatically. We'll get to those in lesson 12.
 2022–2024 was prompt engineering. 2025 was context engineering. 2026 is
 harness engineering. Each era expands scope rather than replacing the
 prior one (modern harnesses still contain carefully crafted prompts),
-but the binding constraint moved.
+but the binding constraint moved. The Zhou et al. externalization
+survey gives this shift a name: capability is moving out of model
+weights into externalized runtime artifacts, memory, skills, protocols,
+and the harness that coordinates them. (source:
+2604.externalization-llm-agents.pdf, §2)
 </Callout>
 
 ## What you'll learn here
