@@ -80,6 +80,14 @@ Two other formalizations cut the same space differently:
   adapters, state semantics, and a failure taxonomy. Closer to a
   spec language than to a component taxonomy. We'll meet this in
   lesson 11.
+- **Externalization** (Zhou et al.) cuts orthogonally: memory
+  externalizes state across time, skills externalize procedural
+  expertise, protocols externalize interaction structure, and the
+  harness coordinates all three. Memory ≈ S, skills ≈ part of C and
+  T, protocols ≈ T's typed contracts. The point isn't a different
+  taxonomy; it's a different question, namely *what burden does each
+  component move out of the model?* (source:
+  2604.externalization-llm-agents.pdf, §1 and §6)
 
 The six-tuple is the most parsimonious frame, which is why we use it
 throughout this topic.
@@ -92,6 +100,10 @@ performance *and* prolongs adversarial payload persistence), V ↔ L
 implementing them twice), and S ↔ T (tools that mutate persistent state are
 simultaneously tool calls and state mutations, and few systems have a
 clean spec for that). Optimizing C in isolation usually makes L worse.
+Zhou et al. add a fourth coupling: memory, skills, and tool protocols
+all compete for the same context budget, so they have to be routed
+together rather than tuned in isolation. (source:
+2604.externalization-llm-agents.pdf, §7.1)
 </Callout>
 
 <KnowledgeCheck question="Which two components are systematically under-implemented across surveyed harnesses?">

@@ -138,3 +138,71 @@ The 2026 successor discipline to prompt and context engineering.
 Designing the full six-component runtime, not just the prompt or
 the context. Coined by OpenAI in February 2026.
 </Term>
+
+<Term name="externalization">
+The move of cognitive burden out of model weights into runtime
+artifacts: memory, skills, protocols, and the harness that
+coordinates them. Frames why "harness-only" wins are real: the
+harness changes what the model has to solve internally. (source:
+2604.externalization-llm-agents.pdf, §1)
+</Term>
+
+<Term name="memory, skills, protocols">
+The three externalization dimensions the harness coordinates.
+Memory externalizes state across time (working, episodic, semantic).
+Skills externalize procedural expertise (reusable, loadable
+procedures, e.g. CLAUDE.md, named skills). Protocols externalize
+interaction structure (typed tool schemas, MCP, lifecycle contracts).
+All three compete for the same context budget and must be routed
+together. (source: 2604.externalization-llm-agents.pdf, §3-§5)
+</Term>
+
+<Term name="code-as-harness interface">
+The boundary where model output becomes executable reasoning, a
+programmable action, or inspectable environment state. A typed tool
+call is one example; a generated test, plan file, or verifier is
+another. (source: 2605.code-as-harness.pdf, §2)
+</Term>
+
+<Term name="plan-execute-verify (PEV)">
+A control loop that binds every accepted state transition to three
+things: an externalized plan contract (intent, invariants,
+acceptance criteria, rollback), execution in a sandboxed permissioned
+environment, and verification that emits a structured evidence
+bundle. Generalizes generator-evaluator and initializer + coding
+agent into one operational state machine. (source:
+2605.code-as-harness.pdf, §3.4)
+</Term>
+
+<Term name="verification stack">
+A layered set of checks (syntax/types, unit behavior, properties,
+static risk, runtime evidence, formal constraints, human judgment)
+where each layer declares what it verifies and what it misses. Pass
+is evidence, not truth. Action verifiers and AutoHarness are narrow
+verification stacks. (source: 2605.code-as-harness.pdf, §5.2.2)
+</Term>
+
+<Term name="action verifier">
+A code-level legality predicate that filters illegal or unsafe
+actions before they reach the environment. AutoHarness is the
+extreme case where the harness collapses to one such predicate.
+Generalizes to permission gates, edit guards, and command
+allowlists. (source: 2603.autoharness.pdf; 2605.code-as-harness.pdf,
+§2.2 and §3.3)
+</Term>
+
+<Term name="transactional shared program state">
+An abstraction for multi-agent code work where each action declares
+its read set, write set, assumptions, verifier obligations, and
+conflict policy. Catches semantic conflicts (stale plans, obsolete
+invariants, divergent assumptions) that text-merge tools miss.
+(source: 2605.code-as-harness.pdf, §5.2.4)
+</Term>
+
+<Term name="durable approval">
+Human approval represented as harness state rather than a one-shot
+prompt. Carries action, evidence, scope, decision, expiration, and a
+consumption log so later calls can be checked against the original
+grant. Prevents approval laundering, scope creep, and untracked
+denial. (source: 2605.code-as-harness.pdf, §5.2.5)
+</Term>

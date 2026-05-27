@@ -107,6 +107,25 @@ This is why **T's job is mediation**, not implementation. The
 registry is a switchboard. It owns the schema and the dispatch
 contract. Anything that wants to be a tool plugs into it.
 
+## Tools as the code-as-harness action interface
+
+The Ning et al. survey gives this mediation a sharper name: a tool
+call is one form of *code-as-harness interface*, the boundary where
+model output becomes a permitted state transition. The model proposes
+intent; the registry, plus pre-call hooks, plus the implementation
+together convert intent into a typed, validated, governed action.
+(source: 2605.code-as-harness.pdf, §2.2)
+
+One way to see how much work the registry is doing: imagine a tool
+call as an evidence-carrying action, not a black box. The call
+arrives with a schema; the registry validates it; a permission gate
+decides whether it may run; the implementation runs it; the result
+comes back with structured success or failure data. AutoHarness is
+the extreme case where the entire harness collapses to a single
+legality predicate, but the same pattern shows up wherever you
+convert "the model said do X" into "X is provably safe to run right
+now." (source: 2605.code-as-harness.pdf, §2.2 and §3.3)
+
 ## A small worked example
 
 The same harness can hold all of these:

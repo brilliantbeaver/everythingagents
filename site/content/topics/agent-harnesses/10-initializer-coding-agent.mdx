@@ -134,7 +134,11 @@ Not opaque LLM-summary blobs.
 
 The pattern is "what an effective software engineer does every day,
 encoded as files." That's why it transfers to other domains: the
-file shapes match the work shapes.
+file shapes match the work shapes. In the broader frame from
+lesson 9, this is a plan-execute-verify loop where the plan lives in
+`feature_list.json`, execution is the next session's coding agent,
+and verification is the browser-based smoke test before any flag
+flips to `passes: true`. (source: 2605.code-as-harness.pdf, §3.4)
 
 <KnowledgeCheck question="Why does this pattern use `feature_list.json` rather than `feature_list.md`?">
   <Option>

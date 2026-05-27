@@ -100,6 +100,34 @@ The fix is to align verifier criteria to the *final acceptance
 object* (path-addressable artifacts, explicit object checks)
 rather than to screen plausibility.
 
+## Failure modes from multi-agent and approval state
+
+Two more failure modes show up once a harness involves multiple agents
+or stores human approvals as state. The Code-as-Harness survey names
+them as open problems with concrete harness implications. (source:
+2605.code-as-harness.pdf, §5.2.4 and §5.2.5)
+
+**Stale-state conflicts in shared work.** A planner reads the repo
+at SHA `a83c`, a tester checks out SHA `c12e`, a memory entry
+preserves an obsolete invariant, a reviewer adds a constraint that
+never reaches the planner. Git detects textual conflicts; it does
+not detect that a later edit invalidated a prior plan, test, or
+assumption. The fix is *transactional shared program state*: each
+action declares its read set, write set, assumptions, verifier
+obligations, and conflict policy, so the harness can re-verify or
+escalate when a dependency moves under it. (source:
+2605.code-as-harness.pdf, §5.2.4)
+
+**Approval drift.** The harness asked the user "may I run the
+migration?", got a yes, and now treats that as standing permission
+for a slightly different command, on a different branch, an hour
+later. Symptoms: approval laundering, evidence mismatch, scope
+creep, untracked denials. The fix lives in L (lesson 6): make
+approvals first-class state with action, evidence, scope,
+expiration, and a consumption log, so later calls can be checked
+against the original grant rather than reusing a stale yes.
+(source: 2605.code-as-harness.pdf, §5.2.5)
+
 ## The discipline this gives you
 
 When something goes wrong with an agent, the question to ask first

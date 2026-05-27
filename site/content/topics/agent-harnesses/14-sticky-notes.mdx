@@ -53,6 +53,15 @@ positive gains alone; system-prompt-only *regresses* by 2.3 pp.
 Invest engineering effort in durable structured components, not in
 tuning the system prompt.
 
+## 8. Pass is evidence, not truth
+
+Every check has blind spots. A green test means *this layer didn't
+catch a bug*, not *this code is correct*. Build a verification stack
+with explicit scope: which layer caught what, what each layer
+cannot prove, and what remains unverified. Approvals work the same
+way: a "yes" was scoped to specific evidence, not a standing
+permission. Record both as harness state, not as ephemeral facts.
+
 ---
 
 That's the topic. From here, the natural directions are:

@@ -112,6 +112,38 @@ This is why V matters. A good V is precisely the surface that lets
 something downstream (a human debugger, a benchmark, a meta-harness
 optimizer) *navigate* the trace, not summarize it.
 
+## Pass/fail isn't enough: the verification stack
+
+One thing a structured trajectory should carry is what its checks
+actually proved. The 2026 Code-as-Harness survey calls this the
+*verification stack*: a layered set of checks where each layer
+declares what it verifies, what it cannot verify, and what
+confidence it contributes. (source: 2605.code-as-harness.pdf, §5.2.2)
+
+| Layer | Catches | Misses |
+|---|---|---|
+| syntax and types | malformed programs, type errors | wrong behavior |
+| unit behavior | local regressions | missing cases, integration bugs |
+| properties / fuzz | invariant violations | domain intent |
+| static risk | known unsafe patterns | runtime-only faults |
+| runtime evidence | actual behavior | unobserved branches |
+| formal constraints | specified invariants | underspecified requirements |
+| human judgment | intent, taste, accountability | scale, consistency |
+
+No single layer is sufficient. Tests can be green while the
+specification is underspecified; GUI checkers can miss unsafe
+intermediate states; simulators can hide physical risk. The harness
+should route feedback by type: compiler errors to syntax repair,
+test failures to behavioral diagnosis, security findings to policy
+escalation, ambiguous review to arbitration.
+
+The practical version of this for V is *evidence-carrying actions*.
+Each accepted action records not just success/failure but which
+checks ran, what they verified, and what remains unknown. A trace
+entry that says "tests passed, no coverage on branch X, no browser
+regression run" is far more useful than one that says "ok." (source:
+2605.code-as-harness.pdf, §5.2.2)
+
 ## The "progressive disclosure" pattern
 
 You don't have to choose between summaries and raw. AHE's design is

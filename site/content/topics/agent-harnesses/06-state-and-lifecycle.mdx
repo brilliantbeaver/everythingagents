@@ -108,6 +108,41 @@ Some real patterns:
 Each of these is one small file in `settings.json` that does the
 work for *every* future tool the harness will ever dispatch.
 
+## Human approval is state, not an interruption
+
+Most agent systems treat human review as a modal prompt: the agent
+asks, the user clicks yes or no, execution resumes. The Code-as-Harness
+survey argues for a stronger design. Human input is part of the
+lifecycle and governance layer, and approvals should be stored,
+scoped, replayed, audited, and invalidated like any other state
+transition. (source: 2605.code-as-harness.pdf, §5.2.5)
+
+A useful approval record carries five fields:
+
+- the exact action being requested,
+- the evidence shown to the human (diff, dry-run plan, test output),
+- the scope of the approval (this branch only, staging only, expires
+  in 30 minutes),
+- the decision (approved, denied, approved with constraints),
+- the consumption log: which later actions consumed the approval.
+
+That structure prevents a class of failure modes a yes/no prompt
+cannot. *Approval laundering*: agent gets approval for one command,
+then runs a nearby riskier one. *Evidence mismatch*: the human
+approved a stale dry-run that no longer matches the final command.
+*Scope creep*: a one-time approval becomes a standing permission
+because the harness only stored "approved." *Untracked denial*: a
+denial isn't recorded, so the agent asks again later in a different
+form. These are harness failures, not model personality flaws; they
+require state, scope, and evidence to fix. (source:
+2605.code-as-harness.pdf, §5.2.5)
+
+In hook terms: a `PreToolUse` hook that decides "needs review" must
+not just block the call. It must record the request, attach the
+evidence, capture the decision and its scope, and let later calls
+consult the record before acting. The approval becomes a row in S,
+not a paused turn.
+
 ## Why both are underbuilt
 
 Two reasons. **State** gets reinvented per project. Every team
