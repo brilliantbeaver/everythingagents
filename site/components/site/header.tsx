@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Show, UserButton, SignInButton } from "@clerk/nextjs";
 import { ThemeToggle } from "./theme-toggle";
 import { NotifyCTA } from "./notify-cta";
@@ -13,6 +14,12 @@ export function Header() {
 
         <nav className="ml-2 hidden items-center gap-4 text-sm text-muted-foreground sm:flex">
           <TopicsNav />
+          <Link
+            href="/visualizer"
+            className="rounded-md text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Agent Visualizer
+          </Link>
         </nav>
 
         {/* Search bar grows to fill the middle of the header on desktop;

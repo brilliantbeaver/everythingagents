@@ -146,3 +146,162 @@
     page-break-after: avoid;
   }
 }
+
+/* ============================================================
+   Visualizer scope — Agent Visualizer route group
+   ============================================================
+   The visualizer is a tool surface (React Flow canvas, sidebar,
+   code editor) and wants a cool slate palette tuned for dense
+   data, not the site's warm editorial paper. We override OKLCH
+   tokens inside .visualizer-scope so the existing Tailwind
+   class set (bg-background, text-muted-foreground, …) yields a
+   different look without forking the class names. We also set
+   the HSL fallbacks the app code uses directly (bg-card,
+   bg-primary, …). Both palettes coexist; nothing leaks. */
+.visualizer-scope {
+  /* OKLCH overrides — match the cool slate target. */
+  --background: 99% 0.003 240;
+  --foreground: 21% 0.02 245;
+  --muted: 96.5% 0.005 240;
+  --muted-foreground: 49% 0.012 245;
+  --border: 91% 0.005 240;
+  --accent: 60% 0.18 255;
+  --accent-foreground: 99% 0 0;
+  --code-bg: 96% 0.005 240;
+  --ring: 60% 0.18 255 / 0.4;
+
+  /* HSL tokens — used directly by the visualizer components. Mirror
+     the OKLCH values above so card/primary surfaces feel coherent
+     with the rest of the scope. */
+  --app-card: 0 0% 100%;
+  --app-card-foreground: 222 47% 11%;
+  --app-primary: 222 47% 11%;
+  --app-primary-foreground: 210 40% 98%;
+  --app-destructive: 0 72% 51%;
+  --app-destructive-foreground: 0 0% 100%;
+
+  /* CodeMirror palette — GitHub-light. */
+  --cm-text: #24292e;
+  --cm-comment: #22863a;
+  --cm-string: #a31515;
+  --cm-keyword: #005cc5;
+  --cm-type: #0e7c86;
+  --cm-function: #6f42c1;
+  --cm-invalid: #b31d28;
+  --cm-selection: rgba(0, 92, 197, 0.18);
+  --cm-selection-focus: rgba(0, 92, 197, 0.25);
+  --cm-bracket-bg: rgba(0, 92, 197, 0.12);
+  --cm-bracket-outline: rgba(0, 92, 197, 0.3);
+}
+
+.dark .visualizer-scope {
+  --background: 16% 0.01 245;
+  --foreground: 96% 0.005 240;
+  --muted: 21% 0.012 245;
+  --muted-foreground: 70% 0.008 240;
+  --border: 27% 0.012 245;
+  --accent: 70% 0.16 255;
+  --accent-foreground: 16% 0.01 245;
+  --code-bg: 19% 0.01 245;
+  --ring: 70% 0.16 255 / 0.5;
+
+  --app-card: 222 47% 9%;
+  --app-card-foreground: 210 40% 98%;
+  --app-primary: 210 40% 98%;
+  --app-primary-foreground: 222 47% 11%;
+  --app-destructive: 0 63% 51%;
+  --app-destructive-foreground: 0 0% 100%;
+
+  --cm-text: #e6edf3;
+  --cm-comment: #7ee787;
+  --cm-string: #ffa198;
+  --cm-keyword: #79c0ff;
+  --cm-type: #7dd3c0;
+  --cm-function: #d2a8ff;
+  --cm-invalid: #ff7b72;
+  --cm-selection: rgba(56, 139, 253, 0.25);
+  --cm-selection-focus: rgba(56, 139, 253, 0.4);
+  --cm-bracket-bg: rgba(56, 139, 253, 0.18);
+  --cm-bracket-outline: rgba(56, 139, 253, 0.5);
+}
+
+/* The visualizer uses the sans stack for body copy (tool surfaces don't
+   want serif). Override the site default within scope. */
+.visualizer-scope {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* React Flow theming — only applies inside the visualizer scope. */
+.visualizer-scope .react-flow__attribution { display: none !important; }
+.visualizer-scope .react-flow__background { background: hsl(220 14% 93%); }
+.dark .visualizer-scope .react-flow__background { background: hsl(222 47% 6%); }
+.visualizer-scope .react-flow__background pattern circle { fill: hsl(220 13% 78%); }
+.dark .visualizer-scope .react-flow__background pattern circle { fill: hsl(217 20% 22%); }
+
+.visualizer-scope .react-flow__edge-path {
+  stroke: hsl(215 18% 50%);
+  stroke-width: 2.25;
+}
+.dark .visualizer-scope .react-flow__edge-path {
+  stroke: hsl(215 16% 70%);
+}
+.visualizer-scope .react-flow__edge.selected .react-flow__edge-path,
+.visualizer-scope .react-flow__edge:hover .react-flow__edge-path {
+  stroke: oklch(var(--accent));
+  stroke-width: 3;
+}
+.visualizer-scope .react-flow__edge-textbg { fill: hsl(var(--app-card)); fill-opacity: 0.96; }
+.visualizer-scope .react-flow__edge-text { fill: hsl(215 25% 27%); font-weight: 500; }
+.dark .visualizer-scope .react-flow__edge-text { fill: hsl(210 40% 88%); }
+
+.visualizer-scope .react-flow__handle {
+  width: 10px; height: 10px;
+  border-radius: 9999px;
+  border: 2px solid hsl(217 91% 60%);
+  background: white;
+  opacity: 1;
+}
+.dark .visualizer-scope .react-flow__handle {
+  background: hsl(var(--app-card));
+}
+.visualizer-scope .agent-handle {
+  width: 10px !important;
+  height: 10px !important;
+}
+.visualizer-scope .react-flow__handle.react-flow__handle-top { top: -5px; }
+.visualizer-scope .react-flow__handle.react-flow__handle-bottom { bottom: -5px; }
+.visualizer-scope .agent-handle-satellite,
+.visualizer-scope .agent-handle-floating {
+  width: 1px !important;
+  height: 1px !important;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.visualizer-scope .react-flow__minimap {
+  background: hsl(var(--app-card));
+  border: 1px solid oklch(var(--border));
+  border-radius: 8px;
+}
+.visualizer-scope .floating-minimap-host .react-flow__minimap {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: hsl(var(--app-card));
+}
+.visualizer-scope .react-flow__controls {
+  border: 1px solid oklch(var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.visualizer-scope .react-flow__controls-button {
+  background: hsl(var(--app-card));
+  color: hsl(var(--app-card-foreground));
+  border-bottom: 1px solid oklch(var(--border));
+}

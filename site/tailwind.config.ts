@@ -30,6 +30,21 @@ const config: Config = {
           DEFAULT: "oklch(var(--code-bg))",
         },
         ring: "oklch(var(--ring))",
+        // Visualizer-only tokens. The visualizer route group sets these
+        // HSL vars (via .visualizer-scope) so the cool slate tool palette
+        // can coexist with the warm OKLCH site palette without bleeding.
+        card: {
+          DEFAULT: "hsl(var(--app-card, 0 0% 100%))",
+          foreground: "hsl(var(--app-card-foreground, 222 47% 11%))",
+        },
+        primary: {
+          DEFAULT: "hsl(var(--app-primary, 222 47% 11%))",
+          foreground: "hsl(var(--app-primary-foreground, 210 40% 98%))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--app-destructive, 0 72% 51%))",
+          foreground: "hsl(var(--app-destructive-foreground, 0 0% 100%))",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

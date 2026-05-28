@@ -3,8 +3,6 @@ import Script from "next/script";
 import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/providers";
-import { Header } from "@/components/site/header";
-import { Footer } from "@/components/site/footer";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-ZHRJV1Y75W";
@@ -100,13 +98,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <ClerkProvider>
-          <ThemeProvider>
-            <Header />
-            <main id="main" className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-              {children}
-            </main>
-            <Footer />
-          </ThemeProvider>
+          <ThemeProvider>{children}</ThemeProvider>
         </ClerkProvider>
 
         {/* Google Analytics 4 (gtag.js). Loaded after the page becomes
