@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <div className="py-10 sm:py-14">
-      <section className="max-w-prose">
+      <section className="mx-auto max-w-prose">
         <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl">
           Tutorials for building reliable agents.
         </h1>
@@ -22,7 +22,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="mt-10 max-w-3xl">
+      <section className="mx-auto mt-10 max-w-3xl">
         <p className="ui-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           A frame for what's here
         </p>
@@ -38,7 +38,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-10 max-w-3xl">
+      <section className="mx-auto mt-10 max-w-3xl">
         <h2 className="ui-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Tutorials
         </h2>
@@ -87,7 +87,7 @@ export default function Home() {
       </section>
 
       {upcoming.length > 0 && (
-        <section className="mt-10 max-w-3xl">
+        <section className="mx-auto mt-10 max-w-3xl">
           <h2 className="ui-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             In the queue
           </h2>
