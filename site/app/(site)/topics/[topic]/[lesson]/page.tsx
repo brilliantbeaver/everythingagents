@@ -126,9 +126,11 @@ export default async function LessonPage({ params }: { params: Params }) {
             Lesson {lesson.number} of {topic.lessons.length} · {lesson.minutes} min
           </p>
           <h1 className="mt-2 font-serif text-3xl leading-tight tracking-tight text-foreground sm:text-4xl">{lesson.title}</h1>
-          <p className="mt-3 text-base text-foreground/85">{lesson.keyIdea}</p>
+          <p className="mt-3 font-serif text-base text-foreground/85">{lesson.keyIdea}</p>
         </header>
-        <div className="mt-8 max-w-prose">
+        {/* Lesson prose stays in Source Serif for long-form readability,
+            even though the rest of the site shifted to Inter as default. */}
+        <div className="mt-8 max-w-prose font-serif">
           <MDXContent components={mdxComponents} />
         </div>
         <nav aria-label="Lesson navigation" className="ui-sans mt-16 flex flex-wrap items-stretch justify-between gap-4 border-t border-border pt-6 text-sm">
