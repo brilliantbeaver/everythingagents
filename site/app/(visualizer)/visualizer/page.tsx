@@ -38,7 +38,7 @@ export default function HomePage() {
           <FeatureCard
             icon={Upload}
             title="Drop in any .agent"
-            body="Files are parsed on the server and held in memory for the session. Nothing is persisted across deploys."
+            body="Files are parsed in your browser. Nothing is uploaded to a server — the source travels with the URL so links are shareable."
           />
           <FeatureCard
             icon={Network}
@@ -63,10 +63,10 @@ export default function HomePage() {
                 Open <Link className="font-medium text-accent underline-offset-4 hover:underline" href="/visualizer/upload">Upload</Link> and pick a <code className="rounded bg-muted px-1.5 py-0.5">.agent</code> file.
               </Step>
               <Step n={2}>
-                The file is parsed and held in memory for this session. It now shows in the sidebar.
+                The file is parsed in your browser and a shareable link is generated. It also lands in the sidebar's <span className="font-medium">Recent</span> list (this browser only).
               </Step>
               <Step n={3}>
-                Click it to open the interactive graph. Every node opens a detail panel with the source.
+                Click any node in the graph to open a detail panel with the source. Copy the URL to share the same view with someone else.
               </Step>
             </ol>
             <div className="mt-5">
