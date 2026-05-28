@@ -11,16 +11,17 @@ import {
   Upload,
   FileCode2,
   PanelLeftOpen,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePersistedState } from "@/lib/visualizer/use-persisted-state";
-
-interface UploadItem {
-  id: string;
-  fileName: string;
-  uploadedAt: string;
-  bytes: number;
-}
+import {
+  listRecents,
+  onRecentsChanged,
+  recentHref,
+  removeRecent,
+  type Recent,
+} from "@/lib/visualizer/recents";
 
 const DEFAULT_WIDTH = 288;
 const MIN_WIDTH = 200;
@@ -31,22 +32,14 @@ const SNAP_THRESHOLD = 140;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const [recents, setRecents] = useState<Recent[]>([]);
   const [width, setWidth] = usePersistedState<number>("agentscript:sidebarWidth", DEFAULT_WIDTH);
   const [dragging, setDragging] = useState(false);
   const dragRef = useRef<{ startX: number; startW: number } | null>(null);
 
   useEffect(() => {
-    const fetchList = () => {
-      fetch("/api/visualizer/agents")
-        .then((r) => r.json())
-        .then((j) => setUploads(j.items ?? []))
-        .catch(() => undefined);
-    };
-    fetchList();
-    const handler = () => fetchList();
-    window.addEventListener("agents:changed", handler);
-    return () => window.removeEventListener("agents:changed", handler);
+    setRecents(listRecents());
+    return onRecentsChanged(() => setRecents(listRecents()));
   }, []);
 
   const onMouseDown = useCallback(
@@ -158,27 +151,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="mt-2 px-5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Uploads
+          <div className="mt-2 flex items-center gap-2 px-5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Recent
+            <span className="text-[9px] font-medium normal-case tracking-normal text-muted-foreground/70">
+              · this browser
+            </span>
           </div>
           <div className="flex-1 overflow-y-auto px-2 pb-3">
-            {uploads.length === 0 ? (
+            {recents.length === 0 ? (
               <p className="px-3 py-2 text-xs text-muted-foreground">
-                No uploads yet. Drop a <code className="rounded bg-muted px-1">.agent</code> file in
+                No recent files. Drop a <code className="rounded bg-muted px-1">.agent</code> file in
                 the Upload page.
               </p>
             ) : (
               <ul className="space-y-0.5">
-                {uploads.map((u) => {
-                  const href = `/agents/${u.id}`;
-                  const active = pathname === href;
-                  const name = u.fileName.replace(/\.agent$/, "");
+                {recents.map((r) => {
+                  const href = recentHref(r);
+                  // Active state matches by URL token, since /visualizer/view
+                  // is a single route distinguished by its query string.
+                  const active = typeof window !== "undefined" &&
+                    pathname === "/visualizer/view" &&
+                    window.location.search === href.replace("/visualizer/view", "");
+                  const name = (r.label || r.fileName).replace(/\.agent$/, "");
                   return (
-                    <li key={u.id}>
+                    <li key={r.key} className="group/row relative">
                       <Link
                         href={href}
                         className={cn(
-                          "group flex items-start gap-2 rounded-md px-3 py-2 text-xs transition-colors",
+                          "flex items-start gap-2 rounded-md px-3 py-2 pr-7 text-xs transition-colors",
                           active
                             ? "bg-muted font-medium text-foreground"
                             : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
@@ -188,16 +188,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-medium">{name}</div>
                           <div className="text-[10px] text-muted-foreground">
-                            {new Date(u.uploadedAt).toLocaleString(undefined, {
+                            {new Date(r.addedAt).toLocaleString(undefined, {
                               month: "short",
                               day: "numeric",
                               hour: "numeric",
                               minute: "2-digit",
                             })}{" "}
-                            · {(u.bytes / 1024).toFixed(1)} KB
+                            · {(r.sizeBytes / 1024).toFixed(1)} KB
                           </div>
                         </div>
                       </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeRecent(r.key);
+                        }}
+                        title="Remove from recent"
+                        aria-label={`Remove ${name} from recent`}
+                        className="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus:opacity-100 group-hover/row:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </li>
                   );
                 })}

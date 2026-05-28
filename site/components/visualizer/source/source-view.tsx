@@ -1,14 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Boxes,
-  Check,
   ChevronDown,
   ChevronRight,
-  CircleDot,
   FileCode2,
   Loader2,
   MessageSquare,
@@ -98,38 +95,26 @@ const KIND_TO_SECTION: Record<OutlineGroupKind, SectionKey> = (() => {
   return map;
 })();
 
-type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
-
 interface Props {
-  /** Server-side id used for PUT /api/agents/[id]. */
-  agentId: string;
   source: string;
   fileName: string;
 }
 
-export function SourceView({ agentId, source, fileName }: Props) {
-  const router = useRouter();
+export function SourceView({ source, fileName }: Props) {
   const [buffer, setBuffer] = useState<string>(source);
-  const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   const [lineWrap, setLineWrap] = usePersistedState<boolean>("agentscript:lineWrap", false);
   const editorRef = useRef<CodeEditorHandle | null>(null);
-  const saveTimer = useRef<number | null>(null);
-  const lastSavedDoc = useRef<string>(source);
 
   // Keep buffer in sync if the parent passes a fresh source (e.g. navigation
-  // between agent files). The CodeEditor itself is keyed by agentId so it
-  // remounts with the new initial value.
+  // between agent files). The CodeEditor remounts via the source-derived key
+  // below to pick up the new initial value.
   useEffect(() => {
     setBuffer(source);
-    lastSavedDoc.current = source;
-    setSaveState("idle");
-  }, [source, agentId]);
+  }, [source]);
 
-  // Live outline computed from the editor's current buffer — so newly added
-  // subagents/variables show up without needing to save first.
+  // Live outline computed from the current source.
   const groups = useMemo(() => buildOutline(buffer), [buffer]);
 
   const filteredGroups: OutlineGroup[] = useMemo(() => {
@@ -144,102 +129,6 @@ export function SourceView({ agentId, source, fileName }: Props) {
   }, [groups, query]);
 
   const lineCount = useMemo(() => buffer.split(/\r?\n/).length, [buffer]);
-
-  const persist = useCallback(
-    async (doc: string): Promise<void> => {
-      if (doc === lastSavedDoc.current) {
-        setSaveState("idle");
-        return;
-      }
-      setSaveState("saving");
-      setErrorMsg(null);
-      try {
-        const res = await fetch(`/api/visualizer/agents/${agentId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: doc }),
-        });
-        if (!res.ok) {
-          const j = (await res.json().catch(() => ({}))) as { error?: string };
-          throw new Error(j.error || `HTTP ${res.status}`);
-        }
-        lastSavedDoc.current = doc;
-        setSaveState("saved");
-        // Refresh the server component so the Graph tab picks up the new AST
-        // next time the user switches to it. Also notify the sidebar so byte
-        // counts stay accurate.
-        router.refresh();
-        window.dispatchEvent(new Event("agents:changed"));
-      } catch (err) {
-        setSaveState("error");
-        setErrorMsg(err instanceof Error ? err.message : "Save failed");
-      }
-    },
-    [agentId, router],
-  );
-
-  const scheduleSave = useCallback(
-    (doc: string): void => {
-      if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
-      saveTimer.current = window.setTimeout(() => {
-        saveTimer.current = null;
-        void persist(doc);
-      }, 800);
-    },
-    [persist],
-  );
-
-  const handleChange = useCallback(
-    (doc: string): void => {
-      setBuffer(doc);
-      setSaveState(doc === lastSavedDoc.current ? "idle" : "dirty");
-      scheduleSave(doc);
-    },
-    [scheduleSave],
-  );
-
-  const handleSaveShortcut = useCallback(
-    (doc: string): void => {
-      if (saveTimer.current !== null) {
-        window.clearTimeout(saveTimer.current);
-        saveTimer.current = null;
-      }
-      void persist(doc);
-    },
-    [persist],
-  );
-
-  // Flush any pending save when the user navigates away.
-  useEffect(() => {
-    return () => {
-      if (saveTimer.current !== null) {
-        window.clearTimeout(saveTimer.current);
-        const doc = editorRef.current?.getDoc();
-        if (doc !== undefined && doc !== lastSavedDoc.current) {
-          // Best-effort sync save via sendBeacon doesn't accept JSON cleanly,
-          // so fire-and-forget via fetch with keepalive.
-          void fetch(`/api/visualizer/agents/${agentId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: doc }),
-            keepalive: true,
-          });
-        }
-      }
-    };
-  }, [agentId]);
-
-  // Warn if the user closes the tab with unsaved changes.
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent): void => {
-      if (saveState === "dirty" || saveState === "saving") {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [saveState]);
 
   const toggleGroup = (key: string): void => {
     setCollapsedGroups((prev) => {
@@ -304,7 +193,9 @@ export function SourceView({ agentId, source, fileName }: Props) {
         <div className="flex shrink-0 items-center gap-2 border-b bg-card px-3 py-1.5">
           <FileCode2 className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium">{fileName}</span>
-          <SaveIndicator state={saveState} error={errorMsg} />
+          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            Read-only
+          </span>
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
@@ -328,11 +219,10 @@ export function SourceView({ agentId, source, fileName }: Props) {
         </div>
         <div className="relative min-h-0 flex-1">
           <CodeEditor
-            key={agentId}
             ref={editorRef}
             initialValue={source}
-            onChange={handleChange}
-            onSave={handleSaveShortcut}
+            onChange={(doc) => setBuffer(doc)}
+            readOnly
             lineWrap={lineWrap}
           />
         </div>
@@ -423,38 +313,6 @@ function SourceSection({
       <div className="mx-3 mt-2 border-t border-border/50 last:hidden" />
     </section>
   );
-}
-
-function SaveIndicator({ state, error }: { state: SaveState; error: string | null }) {
-  if (state === "saving") {
-    return (
-      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" /> Saving…
-      </span>
-    );
-  }
-  if (state === "saved") {
-    return (
-      <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-        <Check className="h-3 w-3" /> Saved
-      </span>
-    );
-  }
-  if (state === "dirty") {
-    return (
-      <span className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400">
-        <CircleDot className="h-3 w-3" /> Unsaved
-      </span>
-    );
-  }
-  if (state === "error") {
-    return (
-      <span className="flex items-center gap-1 text-[11px] text-red-600 dark:text-red-400" title={error ?? undefined}>
-        <CircleDot className="h-3 w-3" /> Save failed
-      </span>
-    );
-  }
-  return null;
 }
 
 function EditorSkeleton() {
